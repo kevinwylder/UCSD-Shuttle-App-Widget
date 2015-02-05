@@ -21,7 +21,7 @@ public class WeekView extends View {
     private static final int START_TIME = 7;
     private static final int END_TIME = 23;
     private static final int HOURS_OF_OPERATION = (END_TIME - START_TIME);
-    private static final float SMALL_BOX_WIDTH_WEIGHT = .6f;  // percent of the normal column that is given to time
+    private static final float SMALL_BOX_WIDTH_WEIGHT = .75f;  // percent of the normal column that is given to time
     private static final float SMALL_BOX_HEIGHT_WEIGHT = .9f;     // percent of normal row that is given to days of week
     private static final float TOTAL_WIDTH_WEIGHT = DAYS_OF_THE_WEEK + SMALL_BOX_WIDTH_WEIGHT;
     private static final float TOTAL_HEIGHT_WEIGHT = HOURS_OF_OPERATION + SMALL_BOX_HEIGHT_WEIGHT;
@@ -79,12 +79,30 @@ public class WeekView extends View {
 
     @Override
     public void onDraw(Canvas canvas){
-        canvas.drawRect(sizedPadding, sizedPadding, TOTAL_WIDTH_WEIGHT * dayBoxWidth, sizedPadding + smallerBoxHeight, borderPaint);
-        canvas.drawRect(sizedPadding, sizedPadding, sizedPadding + smallerBoxWidth, TOTAL_HEIGHT_WEIGHT * dayBoxHeight, borderPaint);
+        canvas.drawRect(sizedPadding, sizedPadding, TOTAL_WIDTH_WEIGHT * dayBoxWidth + sizedPadding,
+                sizedPadding + smallerBoxHeight, borderPaint);
+        canvas.drawRect(sizedPadding, sizedPadding, sizedPadding + smallerBoxWidth,
+                TOTAL_HEIGHT_WEIGHT * dayBoxHeight + sizedPadding, borderPaint);
+        float startX = sizedPadding + smallerBoxWidth;
+        float startY = sizedPadding + smallerBoxHeight;
         for(int x = 0; x < DAYS_OF_THE_WEEK; x++){
-            for(int y = 0; y < HOURS_OF_OPERATION; y++){
-                
+            for(int y = 0; y < HOURS_OF_OPERATION; ){           // incremented when drawing box
+                canvas.drawRect(startX + (x * dayBoxWidth), startY + (y * dayBoxHeight),
+                        startX + ((x + 1) * dayBoxWidth), startY + (++y * dayBoxHeight), borderPaint);
             }
+        }
+        float relativeTextBox = (dayBoxHeight + smallTextPaint.getTextSize()) / 2.0f;
+        for(int y = 0; y < HOURS_OF_OPERATION; y++){
+            float yPos = sizedPadding + smallerBoxHeight + (y * dayBoxHeight) + relativeTextBox;
+            String time = ScheduleConstraint.getTimeString(START_TIME + y, 0);
+            float xPos = sizedPadding + (smallerBoxWidth - smallTextPaint.measureText(time)) / 2.0f;
+            canvas.drawText(time, xPos, yPos, smallTextPaint);
+        }
+        float yPos = sizedPadding + (smallerBoxHeight + largeTextPaint.getTextSize()) / 2.0f;
+        for(int x = 0; x < DAYS_OF_THE_WEEK; x++){
+            float xPos = sizedPadding + smallerBoxWidth + (x * dayBoxWidth)
+                    + (smallerBoxWidth - largeTextPaint.measureText(dayAbbreviations[x])) / 2.0f;
+            canvas.drawText(dayAbbreviations[x], xPos, yPos, largeTextPaint);
         }
     }
 

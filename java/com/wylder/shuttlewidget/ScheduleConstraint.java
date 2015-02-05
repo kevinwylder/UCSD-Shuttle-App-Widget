@@ -118,4 +118,24 @@ public class ScheduleConstraint {
     public static String getBusName(int routeId, int stopId){
         return routes[routeId] + ", " + stops[stopId] + " stop";
     }
+
+    public static String getTimeString(int hour, int minute){
+        StringBuilder builder = new StringBuilder();
+        if(hour <= 12){
+            builder.append(hour);
+        }else{
+            builder.append(hour - 12);
+        }
+        builder.append(":");
+        if(minute < 10){
+            builder.append("0");
+        }
+        builder.append(minute);
+        if(hour <= 12){
+            builder.append(" am");
+        }else{
+            builder.append(" pm");
+        }
+        return builder.toString();
+    };
 }
