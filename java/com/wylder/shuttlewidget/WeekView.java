@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * Created by kevin on 2/4/15.
@@ -31,8 +32,8 @@ public class WeekView extends View {
     private float sizedPadding;
     private float smallerBoxWidth;
     private float smallerBoxHeight;
-    private float dayBoxWidth;
-    private float dayBoxHeight;
+    private float hourBoxWidth;
+    private float hourBoxHeight;
 
     private Paint borderPaint = new Paint();
     private Paint largeTextPaint = new Paint();
@@ -47,6 +48,12 @@ public class WeekView extends View {
             "Thu",
             "Fri",
             "Sat"
+    };
+
+    private ScheduleConstraint[] constraints = new ScheduleConstraint[]{        // expanded form for debugging
+            new ScheduleConstraint(new boolean[]{
+                    false, false, true, false, true, true
+            }, 9, 13, 1, 5)
     };
 
     public WeekView(Context ctx, AttributeSet atts){
@@ -65,43 +72,71 @@ public class WeekView extends View {
     public void onSizeChanged(int width, int height, int oldWidth, int oldHeight){
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         sizedPadding = PADDING * ONE_DIP;
-        dayBoxWidth = (width - 2 * sizedPadding) / (TOTAL_WIDTH_WEIGHT);
-        smallerBoxWidth = dayBoxWidth * SMALL_BOX_WIDTH_WEIGHT;
-        dayBoxHeight = (height - 2 * sizedPadding) / (TOTAL_HEIGHT_WEIGHT);
-        smallerBoxHeight = SMALL_BOX_HEIGHT_WEIGHT * dayBoxHeight;
+        hourBoxWidth = (width - 2 * sizedPadding) / (TOTAL_WIDTH_WEIGHT);
+        smallerBoxWidth = hourBoxWidth * SMALL_BOX_WIDTH_WEIGHT;
+        hourBoxHeight = (height - 2 * sizedPadding) / (TOTAL_HEIGHT_WEIGHT);
+        smallerBoxHeight = SMALL_BOX_HEIGHT_WEIGHT * hourBoxHeight;
     }
 
     @Override
     public void onDraw(Canvas canvas){
-        canvas.drawRect(sizedPadding, sizedPadding, TOTAL_WIDTH_WEIGHT * dayBoxWidth + sizedPadding,
+        // start by drawing the constraints
+        for(int i = 0; i < constraints.length; i++){        // foreach constraint
+            ScheduleConstraint constraint = constraints[i];
+            for(int day = 0; day < DAYS_OF_THE_WEEK; day++){    // foreach day of the week
+                if(constraint.daysActive[day]){
+                    for(int hour = constraint.hourStart; hour < constraint.hourEnd; hour++) { // for each hour active
+                        // draw a colored box
+                        float startX = sizedPadding + smallerBoxWidth + (hourBoxWidth * day);
+                        float startY = sizedPadding + smallerBoxHeight + (hourBoxHeight * (hour - START_TIME));
+                        if(constraint.routeId == 0) {
+                            canvas.drawRect(startX, startY, startX + hourBoxWidth, startY + hourBoxHeight, counterPaint);
+                        }else{
+                            canvas.drawRect(startX, startY, startX + hourBoxWidth, startY + hourBoxHeight, clockwisePaint);
+                        }
+                        // write the bus name/route
+                        canvas.drawText(constraint.getStopName(),
+                                startX + (hourBoxWidth - smallTextPaint.measureText(constraint.getStopName())) / 2.0f,
+                                startY + (hourBoxHeight + smallTextPaint.getTextSize()) / 2.0f,
+                                smallTextPaint);
+                    }
+                }
+            }
+        }
+        // outline the smaller boxes time and day
+        canvas.drawRect(sizedPadding, sizedPadding, TOTAL_WIDTH_WEIGHT * hourBoxWidth + sizedPadding,
                 sizedPadding + smallerBoxHeight, borderPaint);
         canvas.drawRect(sizedPadding, sizedPadding, sizedPadding + smallerBoxWidth,
-                TOTAL_HEIGHT_WEIGHT * dayBoxHeight + sizedPadding, borderPaint);
+                TOTAL_HEIGHT_WEIGHT * hourBoxHeight + sizedPadding, borderPaint);
+        // draw each hour box
         float startX = sizedPadding + smallerBoxWidth;
         float startY = sizedPadding + smallerBoxHeight;
         for(int x = 0; x < DAYS_OF_THE_WEEK; x++){
             for(int y = 0; y < HOURS_OF_OPERATION; ){           // incremented when drawing box
-                canvas.drawRect(startX + (x * dayBoxWidth), startY + (y * dayBoxHeight),
-                        startX + ((x + 1) * dayBoxWidth), startY + (++y * dayBoxHeight), borderPaint);
+                canvas.drawRect(startX + (x * hourBoxWidth), startY + (y * hourBoxHeight),
+                        startX + ((x + 1) * hourBoxWidth), startY + (++y * hourBoxHeight), borderPaint);
             }
         }
-        float relativeTextBox = (dayBoxHeight + smallTextPaint.getTextSize()) / 2.0f;
+        // put the time text in the boxes
+        float relativeTextBox = (hourBoxHeight + smallTextPaint.getTextSize()) / 2.0f;
         for(int y = 0; y < HOURS_OF_OPERATION; y++){
-            float yPos = sizedPadding + smallerBoxHeight + (y * dayBoxHeight) + relativeTextBox;
+            float yPos = sizedPadding + smallerBoxHeight + (y * hourBoxHeight) + relativeTextBox;
             String time = ScheduleConstraint.getTimeString(START_TIME + y);
             float xPos = sizedPadding + (smallerBoxWidth - smallTextPaint.measureText(time)) / 2.0f;
             canvas.drawText(time, xPos, yPos, smallTextPaint);
         }
+        // put the day text in the top row
         float yPos = sizedPadding + (smallerBoxHeight + largeTextPaint.getTextSize()) / 2.0f;
         for(int x = 0; x < DAYS_OF_THE_WEEK; x++){
-            float xPos = sizedPadding + smallerBoxWidth + (x * dayBoxWidth)
+            float xPos = sizedPadding + smallerBoxWidth + (x * hourBoxWidth)
                     + (smallerBoxWidth - largeTextPaint.measureText(dayAbbreviations[x])) / 2.0f;
             canvas.drawText(dayAbbreviations[x], xPos, yPos, largeTextPaint);
         }
     }
 
     public void displayConstraints(ScheduleConstraint[] constraints){
-
+        this.constraints = constraints;
+        invalidate();
     }
 
 }

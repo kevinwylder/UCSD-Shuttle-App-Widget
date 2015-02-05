@@ -13,22 +13,22 @@ public class ScheduleConstraint {
     };
 
     public static final String[] stops = new String[]{
-            "Torrey Pines Center",
+            "Torrey Pines",
             "North Point",
-            "Hopkins Parking Structure",
-            "Warren Apartments",
+            "Hopkins Parking",
+            "Warren Aptmnts",
             "Canyonview Pool",
             "Pepper Canyon",
             "Gilman & Myers",
-            "Gilman & Mandelville",
+            "Mandelville",
             "Gilman & Osler",
             "Che Café",
             "Revelle Parking",
             "Pacific Hall",
             "Muir Apartments",
             "Peterson Hall",
-            "Pangea Parking Structure",
-            "Eleanor Roosevelt College"
+            "Pangea Parking",
+            "ERC"
     };
 
     public static final int LEGAL_CONSTRAINT = 1;
@@ -42,11 +42,11 @@ public class ScheduleConstraint {
     private static final String ROUTE_ID = "routeid";
     private static final String STOP_ID = "stopid";
 
-    private boolean[] daysActive;
-    private int hourStart;
-    private int hourEnd;
-    private int routeId;
-    private int stopId;
+    public boolean[] daysActive = new boolean[0];
+    public int hourStart;
+    public int hourEnd;
+    public int routeId;
+    public int stopId;
 
     public ScheduleConstraint(Intent intent){
         this.daysActive = intent.getBooleanArrayExtra(DAYS_ACTIVE);
@@ -54,6 +54,9 @@ public class ScheduleConstraint {
         this.hourEnd = intent.getIntExtra(HOUR_END, 0);
         this.routeId = intent.getIntExtra(ROUTE_ID, 0);
         this.stopId = intent.getIntExtra(STOP_ID, 0);
+        if(daysActive == null){
+            daysActive = new boolean[0];
+        }
     }
 
     public ScheduleConstraint(boolean[] daysActive, int hourStart,
@@ -67,11 +70,11 @@ public class ScheduleConstraint {
 
     @Override
     public String toString(){
-        return getBusName(routeId, stopId) + " from " + hourStart + ":" +" to " + hourEnd;
+        return getBusName(routeId, stopId) + " from " + getTimeString(hourStart)  + " to " + getTimeString(hourEnd);
     }
 
     public int legality(){
-        if(daysActive == null){
+        if(daysActive.length == 0){
             return EMPTY_CONSTRAINT;
         }
         if(hourStart >= hourEnd){
@@ -100,6 +103,22 @@ public class ScheduleConstraint {
         return intent;
     }
 
+    public String getRouteName(){
+        return routes[routeId];
+    }
+
+    public String getStopName(){
+        return stops[stopId];
+    }
+
+    public boolean hasOverlap(ScheduleConstraint constraint){
+        if(constraint.hourStart >= this.hourEnd || constraint.hourEnd < this.hourStart){
+            return false;
+        }else{
+            return true;
+        }
+    }
+
     public static String getBusName(int routeId, int stopId){
         return routes[routeId] + ", " + stops[stopId] + " stop";
     }
@@ -108,7 +127,7 @@ public class ScheduleConstraint {
         if(hour <= 12){
             return hour + ":00 am";
         }else{
-            return hour + ":00 pm";
+            return hour - 12 + ":00 pm";
         }
     };
 }

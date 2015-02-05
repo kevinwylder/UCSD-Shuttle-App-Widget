@@ -24,8 +24,8 @@ public class StopSchedulerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // weekView = new WeekView(this);
-       // setContentView(weekView);
+        setContentView(R.layout.stop_scheduler);
+        weekView = (WeekView) findViewById(R.id.weekView);
 
 
     }
@@ -64,10 +64,12 @@ public class StopSchedulerActivity extends Activity {
         }else if(resultCode == ScheduleConstraint.EMPTY_CONSTRAINT){
             Toast.makeText(this, "Constraint not created, something went horribly wrong", Toast.LENGTH_LONG).show();
         }else if(resultCode == ScheduleConstraint.LEGAL_CONSTRAINT){
-            TextView tv = new TextView(this);
-            ScheduleConstraint constraint = new ScheduleConstraint(data);
-            tv.setText(constraint.toString());
-            setContentView(tv);
+            weekView.displayConstraints(
+                    new ScheduleConstraint[]{
+                            new ScheduleConstraint(data),
+
+                    }
+            );
         }
     }
 

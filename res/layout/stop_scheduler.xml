@@ -7,7 +7,7 @@
 
     <view
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="match_parent"
         class="com.wylder.shuttlewidget.WeekView"
-        android:id="@+id/view" />
+        android:id="@+id/weekView" />
 </LinearLayout>
