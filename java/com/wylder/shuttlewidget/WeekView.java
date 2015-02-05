@@ -17,7 +17,7 @@ public class WeekView extends View {
     private static final float GRID_LINE_SIZE = 4;
     private static final float LARGE_TEXT_SIZE = 13;
     private static final float SMALL_TEXT_SIZE = 6;
-    private static final int DAYS_OF_THE_WEEK = 7;
+    private static final int DAYS_OF_THE_WEEK = 6;
     private static final int START_TIME = 7;
     private static final int END_TIME = 23;
     private static final int HOURS_OF_OPERATION = (END_TIME - START_TIME);
@@ -34,9 +34,6 @@ public class WeekView extends View {
     private float dayBoxWidth;
     private float dayBoxHeight;
 
-    private int viewHeight;
-    private int viewWidth;
-
     private Paint borderPaint = new Paint();
     private Paint largeTextPaint = new Paint();
     private Paint smallTextPaint = new Paint();
@@ -44,7 +41,6 @@ public class WeekView extends View {
     private Paint counterPaint = new Paint();
 
     private static final String[] dayAbbreviations = new String[]{
-            "Sun",
             "Mon",
             "Tues",
             "Wed",
@@ -68,8 +64,6 @@ public class WeekView extends View {
     @Override
     public void onSizeChanged(int width, int height, int oldWidth, int oldHeight){
         super.onSizeChanged(width, height, oldWidth, oldHeight);
-        viewWidth = width;
-        viewHeight = height;
         sizedPadding = PADDING * ONE_DIP;
         dayBoxWidth = (width - 2 * sizedPadding) / (TOTAL_WIDTH_WEIGHT);
         smallerBoxWidth = dayBoxWidth * SMALL_BOX_WIDTH_WEIGHT;
@@ -94,7 +88,7 @@ public class WeekView extends View {
         float relativeTextBox = (dayBoxHeight + smallTextPaint.getTextSize()) / 2.0f;
         for(int y = 0; y < HOURS_OF_OPERATION; y++){
             float yPos = sizedPadding + smallerBoxHeight + (y * dayBoxHeight) + relativeTextBox;
-            String time = ScheduleConstraint.getTimeString(START_TIME + y, 0);
+            String time = ScheduleConstraint.getTimeString(START_TIME + y);
             float xPos = sizedPadding + (smallerBoxWidth - smallTextPaint.measureText(time)) / 2.0f;
             canvas.drawText(time, xPos, yPos, smallTextPaint);
         }

@@ -53,8 +53,7 @@ public class AddConstraintActivity extends Activity {
             @Override
             public void onClick(View view) {
                 ScheduleConstraint constraint = new ScheduleConstraint(daysOfTheWeek.getSelectedDays(),
-                        startTime.getCurrentHour(), startTime.getCurrentMinute(),
-                        endTime.getCurrentHour(), endTime.getCurrentMinute(),
+                        startTime.getCurrentHour(), endTime.getCurrentHour(),
                         routeSpinner.getSelectedItemPosition(), stopSpinner.getSelectedItemPosition()
                 );
                 Intent returnIntent = new Intent();
@@ -74,14 +73,10 @@ public class AddConstraintActivity extends Activity {
             NumberPicker minutePicker = (NumberPicker) picker.findViewById(field.getInt(null));
 
             minutePicker.setMinValue(0);
-            minutePicker.setMaxValue(3);
+            minutePicker.setMaxValue(0);
             ArrayList<String> values = new ArrayList<String>();
-            for (int i = 0; i < 60; i += 15) {
-                values.add("" + i);
-            }
-            for (int i = 0; i < 60; i += 15) {
-                values.add("" + i);
-            }
+            values.add("00");
+            values.add("00");
             minutePicker.setDisplayedValues(values.toArray(new String[values.size()]));
         }catch (Exception e){
             Log.e("KevinRuntime", "TimePicker unable to find method to change increments");

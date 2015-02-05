@@ -38,57 +38,44 @@ public class ScheduleConstraint {
 
     private static final String DAYS_ACTIVE = "daysactive";
     private static final String HOUR_START = "hourstart";
-    private static final String MINUTE_START = "minutestart";
     private static final String HOUR_END = "hourend";
-    private static final String MINUTE_END = "minuteend";
     private static final String ROUTE_ID = "routeid";
     private static final String STOP_ID = "stopid";
 
     private boolean[] daysActive;
     private int hourStart;
-    private int minuteStart;
     private int hourEnd;
-    private int minuteEnd;
     private int routeId;
     private int stopId;
 
     public ScheduleConstraint(Intent intent){
         this.daysActive = intent.getBooleanArrayExtra(DAYS_ACTIVE);
         this.hourStart = intent.getIntExtra(HOUR_START, 0);
-        this.minuteStart = intent.getIntExtra(MINUTE_START, 0);
         this.hourEnd = intent.getIntExtra(HOUR_END, 0);
-        this.minuteEnd = intent.getIntExtra(MINUTE_END, 0);
         this.routeId = intent.getIntExtra(ROUTE_ID, 0);
         this.stopId = intent.getIntExtra(STOP_ID, 0);
     }
 
-    public ScheduleConstraint(boolean[] daysActive, int hourStart, int minuteStart,
-                              int hourEnd, int minuteEnd, int routeId, int stopId){
+    public ScheduleConstraint(boolean[] daysActive, int hourStart,
+                              int hourEnd, int routeId, int stopId){
         this.daysActive = daysActive;
         this.hourStart = hourStart;
-        this.minuteStart = minuteStart;
         this.hourEnd = hourEnd;
-        this.minuteEnd = minuteEnd;
         this.routeId = routeId;
         this.stopId = stopId;
     }
 
     @Override
     public String toString(){
-        return getBusName(routeId, stopId) + " from " + hourStart + ":" + minuteStart * 15 +
-               " to " + hourEnd + ":" + minuteEnd * 15;
+        return getBusName(routeId, stopId) + " from " + hourStart + ":" +" to " + hourEnd;
     }
 
     public int legality(){
         if(daysActive == null){
             return EMPTY_CONSTRAINT;
         }
-        if(hourStart > hourEnd){
+        if(hourStart >= hourEnd){
             return BAD_TIME_RANGE;
-        }else if(hourStart == hourEnd){
-            if(minuteStart > minuteEnd){
-                return  BAD_TIME_RANGE;
-            }
         }
         boolean hasDay = false;
         for(int i = 0; i < 7; i++){
@@ -107,9 +94,7 @@ public class ScheduleConstraint {
     public Intent setConstraintInfo(Intent intent){
         intent.putExtra(DAYS_ACTIVE, daysActive);
         intent.putExtra(HOUR_START, hourStart);
-        intent.putExtra(MINUTE_START, minuteStart);
         intent.putExtra(HOUR_END, hourEnd);
-        intent.putExtra(MINUTE_END, minuteEnd);
         intent.putExtra(ROUTE_ID, routeId);
         intent.putExtra(STOP_ID, stopId);
         return intent;
@@ -119,23 +104,11 @@ public class ScheduleConstraint {
         return routes[routeId] + ", " + stops[stopId] + " stop";
     }
 
-    public static String getTimeString(int hour, int minute){
-        StringBuilder builder = new StringBuilder();
+    public static String getTimeString(int hour){
         if(hour <= 12){
-            builder.append(hour);
+            return hour + ":00 am";
         }else{
-            builder.append(hour - 12);
+            return hour + ":00 pm";
         }
-        builder.append(":");
-        if(minute < 10){
-            builder.append("0");
-        }
-        builder.append(minute);
-        if(hour <= 12){
-            builder.append(" am");
-        }else{
-            builder.append(" pm");
-        }
-        return builder.toString();
     };
 }
