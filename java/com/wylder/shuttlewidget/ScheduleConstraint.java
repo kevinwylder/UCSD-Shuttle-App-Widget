@@ -7,30 +7,6 @@ import android.content.Intent;
  */
 public class ScheduleConstraint {
 
-    public static final String[] routes = new String[]{
-            "Counter Campus Loop",
-            "Clockwise Campus Loop"
-    };
-
-    public static final String[] stops = new String[]{
-            "Torrey Pines",
-            "North Point",
-            "Hopkins Parking",
-            "Warren Aptmnts",
-            "Canyonview Pool",
-            "Pepper Canyon",
-            "Gilman & Myers",
-            "Mandelville",
-            "Gilman & Osler",
-            "Che Café",
-            "Revelle Parking",
-            "Pacific Hall",
-            "Muir Apartments",
-            "Peterson Hall",
-            "Pangea Parking",
-            "ERC"
-    };
-
     public static final int LEGAL_CONSTRAINT = 1;
     public static final int NO_DAYS_SELECTED = 2;
     public static final int BAD_TIME_RANGE = 3;
@@ -80,11 +56,14 @@ public class ScheduleConstraint {
         if(hourStart >= hourEnd){
             return BAD_TIME_RANGE;
         }
+        if(hourStart < ShuttleConstants.HOUR_START | hourEnd > ShuttleConstants.HOUR_END){
+            return BAD_TIME_RANGE;
+        }
         boolean hasDay = false;
-        for(int i = 0; i < 7; i++){
+        for(int i = 0; i < ShuttleConstants.DAYS_OF_THE_WEEK; i++){
             if(daysActive[i]){
                 hasDay = true;
-                i = 7;
+                i = ShuttleConstants.DAYS_OF_THE_WEEK;
             }
         }
         if(!hasDay){
@@ -104,11 +83,11 @@ public class ScheduleConstraint {
     }
 
     public String getRouteName(){
-        return routes[routeId];
+        return ShuttleConstants.routes[routeId];
     }
 
     public String getStopName(){
-        return stops[stopId];
+        return ShuttleConstants.stops[stopId];
     }
 
     public boolean hasOverlap(ScheduleConstraint constraint){
@@ -120,7 +99,7 @@ public class ScheduleConstraint {
     }
 
     public static String getBusName(int routeId, int stopId){
-        return routes[routeId] + ", " + stops[stopId] + " stop";
+        return ShuttleConstants.routes[routeId] + ", " + ShuttleConstants.stops[stopId] + " stop";
     }
 
     public static String getTimeString(int hour){

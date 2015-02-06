@@ -37,9 +37,9 @@ public class AddConstraintActivity extends Activity {
         setUpTimePicker(endTime);
 
         ArrayAdapter<String> routesAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_dropdown_item, ScheduleConstraint.routes);
+                android.R.layout.simple_spinner_dropdown_item, ShuttleConstants.routes);
         ArrayAdapter<String> stopsAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_dropdown_item, ScheduleConstraint.stops);
+                android.R.layout.simple_spinner_dropdown_item, ShuttleConstants.stops);
 
         routeSpinner = (Spinner) findViewById(R.id.routeSpinner);
         stopSpinner  = (Spinner) findViewById(R.id.stopSpinner);

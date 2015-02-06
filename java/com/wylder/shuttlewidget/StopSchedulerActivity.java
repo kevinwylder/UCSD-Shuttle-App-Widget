@@ -20,14 +20,15 @@ public class StopSchedulerActivity extends Activity {
 
     private int REQUEST_CODE = 12;
     WeekView weekView;
+    ConstraintDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.stop_scheduler);
         weekView = (WeekView) findViewById(R.id.weekView);
-
-
+        database = new ConstraintDatabase(this);
+        weekView.displayConstraints(database.getAllConstraints());
     }
 
 
@@ -44,7 +45,7 @@ public class StopSchedulerActivity extends Activity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.add_constraint) {
             Intent startActivity = new Intent(StopSchedulerActivity.this, AddConstraintActivity.class);
             startActivityForResult(startActivity, REQUEST_CODE);
             return true;
@@ -64,12 +65,16 @@ public class StopSchedulerActivity extends Activity {
         }else if(resultCode == ScheduleConstraint.EMPTY_CONSTRAINT){
             Toast.makeText(this, "Constraint not created, something went horribly wrong", Toast.LENGTH_LONG).show();
         }else if(resultCode == ScheduleConstraint.LEGAL_CONSTRAINT){
-            weekView.displayConstraints(
-                    new ScheduleConstraint[]{
-                            new ScheduleConstraint(data),
+            ScheduleConstraint constraint = new ScheduleConstraint(data);
+            if(!database.constraintConflict(constraint)){
+                Log.e("AndroidRuntime", "adding constraint");
+                database.addConstraint(constraint);
+                weekView.displayConstraints(database.getAllConstraints());
+            }else{
+                Log.e("AndroidRuntime", "conflict");
+                Toast.makeText(this, "Constraint not created, there's a conflict with another Constraint", Toast.LENGTH_LONG).show();
+            }
 
-                    }
-            );
         }
     }
 

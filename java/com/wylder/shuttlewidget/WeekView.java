@@ -18,13 +18,10 @@ public class WeekView extends View {
     private static final float GRID_LINE_SIZE = 4;
     private static final float LARGE_TEXT_SIZE = 13;
     private static final float SMALL_TEXT_SIZE = 6;
-    private static final int DAYS_OF_THE_WEEK = 6;
-    private static final int START_TIME = 7;
-    private static final int END_TIME = 23;
-    private static final int HOURS_OF_OPERATION = (END_TIME - START_TIME);
+    private static final int HOURS_OF_OPERATION = (ShuttleConstants.HOUR_END - ShuttleConstants.HOUR_START);
     private static final float SMALL_BOX_WIDTH_WEIGHT = .75f;  // percent of the normal column that is given to time
     private static final float SMALL_BOX_HEIGHT_WEIGHT = .9f;     // percent of normal row that is given to days of week
-    private static final float TOTAL_WIDTH_WEIGHT = DAYS_OF_THE_WEEK + SMALL_BOX_WIDTH_WEIGHT;
+    private static final float TOTAL_WIDTH_WEIGHT = ShuttleConstants.DAYS_OF_THE_WEEK + SMALL_BOX_WIDTH_WEIGHT;
     private static final float TOTAL_HEIGHT_WEIGHT = HOURS_OF_OPERATION + SMALL_BOX_HEIGHT_WEIGHT;
 
     private float ONE_DIP;
@@ -50,11 +47,7 @@ public class WeekView extends View {
             "Sat"
     };
 
-    private ScheduleConstraint[] constraints = new ScheduleConstraint[]{        // expanded form for debugging
-            new ScheduleConstraint(new boolean[]{
-                    false, false, true, false, true, true
-            }, 9, 13, 1, 5)
-    };
+    private ScheduleConstraint[] constraints = new ScheduleConstraint[0];
 
     public WeekView(Context ctx, AttributeSet atts){
         super(ctx, atts);
@@ -83,12 +76,12 @@ public class WeekView extends View {
         // start by drawing the constraints
         for(int i = 0; i < constraints.length; i++){        // foreach constraint
             ScheduleConstraint constraint = constraints[i];
-            for(int day = 0; day < DAYS_OF_THE_WEEK; day++){    // foreach day of the week
+            for(int day = 0; day < ShuttleConstants.DAYS_OF_THE_WEEK; day++){    // foreach day of the week
                 if(constraint.daysActive[day]){
                     for(int hour = constraint.hourStart; hour < constraint.hourEnd; hour++) { // for each hour active
                         // draw a colored box
                         float startX = sizedPadding + smallerBoxWidth + (hourBoxWidth * day);
-                        float startY = sizedPadding + smallerBoxHeight + (hourBoxHeight * (hour - START_TIME));
+                        float startY = sizedPadding + smallerBoxHeight + (hourBoxHeight * (hour - ShuttleConstants.HOUR_START));
                         if(constraint.routeId == 0) {
                             canvas.drawRect(startX, startY, startX + hourBoxWidth, startY + hourBoxHeight, counterPaint);
                         }else{
@@ -111,7 +104,7 @@ public class WeekView extends View {
         // draw each hour box
         float startX = sizedPadding + smallerBoxWidth;
         float startY = sizedPadding + smallerBoxHeight;
-        for(int x = 0; x < DAYS_OF_THE_WEEK; x++){
+        for(int x = 0; x < ShuttleConstants.DAYS_OF_THE_WEEK; x++){
             for(int y = 0; y < HOURS_OF_OPERATION; ){           // incremented when drawing box
                 canvas.drawRect(startX + (x * hourBoxWidth), startY + (y * hourBoxHeight),
                         startX + ((x + 1) * hourBoxWidth), startY + (++y * hourBoxHeight), borderPaint);
@@ -121,13 +114,13 @@ public class WeekView extends View {
         float relativeTextBox = (hourBoxHeight + smallTextPaint.getTextSize()) / 2.0f;
         for(int y = 0; y < HOURS_OF_OPERATION; y++){
             float yPos = sizedPadding + smallerBoxHeight + (y * hourBoxHeight) + relativeTextBox;
-            String time = ScheduleConstraint.getTimeString(START_TIME + y);
+            String time = ScheduleConstraint.getTimeString(ShuttleConstants.HOUR_START + y);
             float xPos = sizedPadding + (smallerBoxWidth - smallTextPaint.measureText(time)) / 2.0f;
             canvas.drawText(time, xPos, yPos, smallTextPaint);
         }
         // put the day text in the top row
         float yPos = sizedPadding + (smallerBoxHeight + largeTextPaint.getTextSize()) / 2.0f;
-        for(int x = 0; x < DAYS_OF_THE_WEEK; x++){
+        for(int x = 0; x < ShuttleConstants.DAYS_OF_THE_WEEK; x++){
             float xPos = sizedPadding + smallerBoxWidth + (x * hourBoxWidth)
                     + (smallerBoxWidth - largeTextPaint.measureText(dayAbbreviations[x])) / 2.0f;
             canvas.drawText(dayAbbreviations[x], xPos, yPos, largeTextPaint);

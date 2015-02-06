@@ -33,15 +33,7 @@ public class DaySelector extends View {
     private Paint textPaint = new Paint();
     private Paint selectedPaint = new Paint();
 
-    private boolean[] selectedDays = new boolean[]{
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false
-    };
+    private boolean[] selectedDays = new boolean[ShuttleConstants.DAYS_OF_THE_WEEK];
 
     private static final String[] dayAbbreviations = new String[]{
             "Mon",
@@ -70,7 +62,7 @@ public class DaySelector extends View {
         viewWidth = width;
         viewHeight = height;
         padding = width * paddingPercentage;
-        cellWidth = (width - (2 * padding)) / 6.0f;         // divide into 6 for days of the week
+        cellWidth = (width - (2 * padding)) / ShuttleConstants.DAYS_OF_THE_WEEK;         // divide into 6 for days of the week
         cellHeight = height - (2 * padding);
         startX = startY = padding;
         textYOffset = (height + textPaint.getTextSize()) / 2.0f;  // center vertically only once
@@ -80,7 +72,7 @@ public class DaySelector extends View {
     @Override
     public void onDraw(Canvas canvas){
         float x = startX;   // variable that will move across the view
-        for(int i = 0; i < 6; i++){  // for each day in the week
+        for(int i = 0; i < ShuttleConstants.DAYS_OF_THE_WEEK; i++){  // for each day in the week
             if(selectedDays[i]){     // if the user highlighted this day, create a cyan base
                 canvas.drawRect(x, startY, x + cellWidth, startY + cellHeight, selectedPaint);
             }
@@ -101,8 +93,8 @@ public class DaySelector extends View {
         // check if touchdown, then if it is in the range of Y values
         if(event.getAction() == MotionEvent.ACTION_DOWN && event.getY() > padding && event.getY() < viewHeight - padding){
             float x = event.getX();
-            int weekIndex = (int) ((6 * (x - padding)) / (viewWidth - (2 * padding)));
-            if(weekIndex < 6){  // weekIndex will be 7 if touching the far right padding
+            int weekIndex = (int) ((ShuttleConstants.DAYS_OF_THE_WEEK * (x - padding)) / (viewWidth - (2 * padding)));
+            if(weekIndex < ShuttleConstants.DAYS_OF_THE_WEEK){  // weekIndex is 7 if touching the far right padding, that would be a problem
                 selectedDays[weekIndex] = !selectedDays[weekIndex];
                 this.invalidate();      // request redraw with new selectedDays array
             }
