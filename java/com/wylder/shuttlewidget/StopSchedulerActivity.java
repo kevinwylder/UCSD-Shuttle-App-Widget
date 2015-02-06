@@ -6,14 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.NumberPicker;
-import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
-
-import java.lang.reflect.Field;
-import java.sql.Time;
-import java.util.ArrayList;
 
 
 public class StopSchedulerActivity extends Activity {
@@ -67,11 +60,11 @@ public class StopSchedulerActivity extends Activity {
         }else if(resultCode == ScheduleConstraint.LEGAL_CONSTRAINT){
             ScheduleConstraint constraint = new ScheduleConstraint(data);
             if(!database.constraintConflict(constraint)){
-                Log.e("AndroidRuntime", "adding constraint");
+                Log.e("KevinRuntime", "adding constraint returned from AddConstraintActivity");
                 database.addConstraint(constraint);
                 weekView.displayConstraints(database.getAllConstraints());
             }else{
-                Log.e("AndroidRuntime", "conflict");
+                Log.e("KevinRuntime", "ConstraintDatabase found a conflicting constraint, so It's not being added to the database");
                 Toast.makeText(this, "Constraint not created, there's a conflict with another Constraint", Toast.LENGTH_LONG).show();
             }
 

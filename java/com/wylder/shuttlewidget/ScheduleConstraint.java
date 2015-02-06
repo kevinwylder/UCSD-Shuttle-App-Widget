@@ -91,10 +91,17 @@ public class ScheduleConstraint {
     }
 
     public boolean hasOverlap(ScheduleConstraint constraint){
+        // check if the hours overlap
         if(constraint.hourStart >= this.hourEnd || constraint.hourEnd < this.hourStart){
             return false;
         }else{
-            return true;
+            // the hours do overlap, but do the days of the week?
+            for(int i = 0; i < ShuttleConstants.DAYS_OF_THE_WEEK; i++){
+                if(constraint.daysActive[i] && this.daysActive[i]){
+                    return true;    // yes, days overlap
+                }
+            }
+            return false;   // no, days don't overlap
         }
     }
 
@@ -108,5 +115,5 @@ public class ScheduleConstraint {
         }else{
             return hour - 12 + ":00 pm";
         }
-    };
+    }
 }

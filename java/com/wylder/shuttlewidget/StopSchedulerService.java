@@ -2,6 +2,7 @@ package com.wylder.shuttlewidget;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * Created by kevin on 2/1/15
@@ -20,22 +21,25 @@ public class StopSchedulerService extends IntentService {
     public static final int UPDATE_ARRIVAL = 20;
 
     public StopSchedulerService(){
-        super(SERVICE_NAME);
+        this(SERVICE_NAME);
     }
 
-    public StopSchedulerService(String name) {
-        super(name);
+    public StopSchedulerService(String serviceName){
+        super(serviceName);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         int type = intent.getIntExtra(UPDATE_TYPE, UPDATE_STOP);
         Intent responseIntent = new Intent(BROADCAST_UPDATE_ACTION);
+        ConstraintDatabase database = new ConstraintDatabase(this);
+        ScheduleConstraint currentConstraint = database.getCurrentConstraint();
+        Log.e("KevinRuntime", currentConstraint.toString());
         if(type == UPDATE_STOP){
-            responseIntent.putExtra(STOP_NAME, "updating stop");
-            responseIntent.putExtra(STOP_TIME, "unchanged");
+            responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
+            responseIntent.putExtra(STOP_TIME, "Update");
         }else{
-            responseIntent.putExtra(STOP_NAME, "unchanged");
+            responseIntent.putExtra(STOP_NAME, "");
             responseIntent.putExtra(STOP_TIME, "updating time");
         }
         this.sendBroadcast(responseIntent);
