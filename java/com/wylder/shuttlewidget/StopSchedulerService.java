@@ -34,9 +34,12 @@ public class StopSchedulerService extends IntentService {
         Intent responseIntent = new Intent(BROADCAST_UPDATE_ACTION);
         ConstraintDatabase database = new ConstraintDatabase(this);
         ScheduleConstraint currentConstraint = database.getCurrentConstraint();
-        Log.e("KevinRuntime", currentConstraint.toString());
         if(type == UPDATE_STOP){
-            responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
+            if(currentConstraint != null) {
+                responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
+            }else{
+                responseIntent.putExtra(STOP_NAME, "Current Location");
+            }
             responseIntent.putExtra(STOP_TIME, "Update");
         }else{
             responseIntent.putExtra(STOP_NAME, "");

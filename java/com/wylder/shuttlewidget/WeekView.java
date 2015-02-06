@@ -34,6 +34,7 @@ public class WeekView extends View {
     private Paint borderPaint = new Paint();
     private Paint largeTextPaint = new Paint();
     private Paint smallTextPaint = new Paint();
+    private Paint smallTextWhitePaint = new Paint();
     private Paint clockwisePaint = new Paint();
     private Paint counterPaint = new Paint();
 
@@ -58,6 +59,8 @@ public class WeekView extends View {
         smallTextPaint.setTextSize(SMALL_TEXT_SIZE * ONE_DIP);
         clockwisePaint.setColor(Color.BLUE);
         counterPaint.setColor(Color.RED);
+        smallTextWhitePaint.set(smallTextPaint);
+        smallTextWhitePaint.setColor(Color.WHITE);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class WeekView extends View {
                         canvas.drawText(constraint.getStopName(),
                                 startX + (hourBoxWidth - smallTextPaint.measureText(constraint.getStopName())) / 2.0f,
                                 startY + (hourBoxHeight + smallTextPaint.getTextSize()) / 2.0f,
-                                smallTextPaint);
+                                smallTextWhitePaint);
                     }
                 }
             }

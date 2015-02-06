@@ -91,7 +91,10 @@ public class DaySelector extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // check if touchdown, then if it is in the range of Y values
-        if(event.getAction() == MotionEvent.ACTION_DOWN && event.getY() > padding && event.getY() < viewHeight - padding){
+        if(this.isEnabled() &&
+                event.getAction() == MotionEvent.ACTION_DOWN &&
+                event.getY() > padding &&
+                event.getY() < viewHeight - padding){
             float x = event.getX();
             int weekIndex = (int) ((ShuttleConstants.DAYS_OF_THE_WEEK * (x - padding)) / (viewWidth - (2 * padding)));
             if(weekIndex < ShuttleConstants.DAYS_OF_THE_WEEK){  // weekIndex is 7 if touching the far right padding, that would be a problem
@@ -105,5 +108,10 @@ public class DaySelector extends View {
     public boolean[] getSelectedDays(){
         return selectedDays;
     }
+
+    public void setSelectedDays(boolean[] selectedDays){
+        this.selectedDays = selectedDays;
+    }
+
 
 }

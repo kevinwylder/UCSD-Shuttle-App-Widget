@@ -23,10 +23,10 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
         PendingIntent updatePendingIntent = PendingIntent.getService(context, 0, updateTimeIntent, PendingIntent.FLAG_ONE_SHOT);
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.shuttle_widget);
-        views.setOnClickPendingIntent(R.id.textView, updatePendingIntent);
-        views.setOnClickPendingIntent(R.id.textView2, updatePendingIntent);
-        views.setTextViewText(R.id.textView, stopTime);
-        views.setTextViewText(R.id.textView2, stopName);
+        views.setOnClickPendingIntent(R.id.stopNameText, updatePendingIntent);
+        views.setOnClickPendingIntent(R.id.timeRangeText, updatePendingIntent);
+        views.setTextViewText(R.id.stopNameText, stopTime);
+        views.setTextViewText(R.id.timeRangeText, stopName);
 
         appWidgetManager.updateAppWidget(appWidgetIds, views);
     }

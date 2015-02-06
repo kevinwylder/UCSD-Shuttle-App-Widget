@@ -13,7 +13,7 @@ import java.util.Calendar;
  */
 public class ConstraintDatabase extends SQLiteOpenHelper {
 
-    private static final int VERSION_NUMBER = 3;
+    private static final int VERSION_NUMBER = 4;
     private static final String DATABASE_NAME = "scheduleDatabase";
     private static final String TABLE_NAME = "constraints";
     private static final String COL_ROUTE_NUMBER = "RouteNumber";

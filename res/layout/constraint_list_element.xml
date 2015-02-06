@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:padding="7dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Canyonview Pool"
+        android:id="@+id/stopNameText"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        style="@android:style/TextAppearance.Medium"
+        android:layout_toLeftOf="@+id/daySelector"
+        android:layout_toStartOf="@+id/daySelector" />
+
+    <view
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        class="com.wylder.shuttlewidget.DaySelector"
+        android:id="@+id/daySelector"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/loopNameText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="11:00 am - 12:00 pm"
+        android:id="@+id/timeRangeText"
+        android:layout_below="@+id/stopNameText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/daySelector"
+        android:layout_toStartOf="@+id/daySelector" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clockwise Campus Loop"
+        android:id="@+id/loopNameText"
+        android:layout_below="@+id/timeRangeText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/daySelector"
+        android:layout_toStartOf="@+id/daySelector"
+        android:textSize="12dp"
+        android:textColor="#ffffffff"
+        android:background="#ff0000ff" />
+</RelativeLayout>

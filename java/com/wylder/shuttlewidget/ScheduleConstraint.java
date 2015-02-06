@@ -90,6 +90,10 @@ public class ScheduleConstraint {
         return ShuttleConstants.stops[stopId];
     }
 
+    public String getTimeRangeString(){
+        return getTimeString(hourStart) + " - " + getTimeString(hourEnd);
+    }
+
     public boolean hasOverlap(ScheduleConstraint constraint){
         // check if the hours overlap
         if(constraint.hourStart >= this.hourEnd || constraint.hourEnd < this.hourStart){

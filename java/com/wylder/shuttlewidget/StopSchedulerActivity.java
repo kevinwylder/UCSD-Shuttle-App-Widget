@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 
@@ -18,10 +19,14 @@ public class StopSchedulerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.stop_scheduler);
-        weekView = (WeekView) findViewById(R.id.weekView);
+        ListView listView = new ListView(this);
+       // setContentView(R.layout.stop_scheduler);
+      //  weekView = (WeekView) findViewById(R.id.weekView);
         database = new ConstraintDatabase(this);
-        weekView.displayConstraints(database.getAllConstraints());
+      //  weekView.displayConstraints(database.getAllConstraints());
+        ConstraintListAdapter adapter = new ConstraintListAdapter(this, database.getAllConstraints());
+        listView.setAdapter(adapter);
+        setContentView(listView);
     }
 
 
