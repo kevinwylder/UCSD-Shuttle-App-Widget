@@ -49,8 +49,8 @@ public class WeekView extends View {
 
     private ScheduleConstraint[] constraints = new ScheduleConstraint[0];
 
-    public WeekView(Context ctx, AttributeSet atts){
-        super(ctx, atts);
+    public WeekView(Context ctx){
+        super(ctx);
         ONE_DIP = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
 
         borderPaint.setStrokeWidth(GRID_LINE_SIZE * ONE_DIP);

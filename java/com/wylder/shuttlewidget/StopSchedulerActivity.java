@@ -1,32 +1,38 @@
 package com.wylder.shuttlewidget;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
 
 public class StopSchedulerActivity extends Activity {
 
-    private int REQUEST_CODE = 12;
-    WeekView weekView;
-    ConstraintDatabase database;
+    private static final int REQUEST_CODE = 12;
+
+    private ViewPager pager;
+    private ConstraintViewAdapter adapter;
+    private ConstraintDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ListView listView = new ListView(this);
-       // setContentView(R.layout.stop_scheduler);
-      //  weekView = (WeekView) findViewById(R.id.weekView);
+        pager = new ViewPager(this);
+        adapter = new ConstraintViewAdapter(this);
         database = new ConstraintDatabase(this);
-      //  weekView.displayConstraints(database.getAllConstraints());
-        ConstraintListAdapter adapter = new ConstraintListAdapter(this, database.getAllConstraints());
-        listView.setAdapter(adapter);
-        setContentView(listView);
+        pager.setAdapter(adapter);
+        setContentView(pager);
+  //      ActionBar actionBar = this.getActionBar();
+  //      actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+  //      actionBar.
     }
 
 
@@ -67,7 +73,8 @@ public class StopSchedulerActivity extends Activity {
             if(!database.constraintConflict(constraint)){
                 Log.e("KevinRuntime", "adding constraint returned from AddConstraintActivity");
                 database.addConstraint(constraint);
-                weekView.displayConstraints(database.getAllConstraints());
+                adapter.updateConstraintsFromDatabase();
+              //  weekView.displayConstraints(database.getAllConstraints());
             }else{
                 Log.e("KevinRuntime", "ConstraintDatabase found a conflicting constraint, so It's not being added to the database");
                 Toast.makeText(this, "Constraint not created, there's a conflict with another Constraint", Toast.LENGTH_LONG).show();

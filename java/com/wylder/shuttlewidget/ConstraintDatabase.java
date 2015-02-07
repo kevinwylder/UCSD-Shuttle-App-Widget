@@ -172,4 +172,24 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         cursor.moveToNext();
         return ret;
     }
+
+    public void removeConstraint(ScheduleConstraint constraint){
+        StringBuilder builder = new StringBuilder("DELETE FROM ");
+        builder.append(TABLE_NAME);
+        builder.append(" WHERE ");
+        builder.append(COL_START_HOUR);
+        builder.append(" = ");
+        builder.append(constraint.hourStart);
+        builder.append(" AND ");
+        for(int i = 0; i < ShuttleConstants.DAYS_OF_THE_WEEK; i++){
+            if(constraint.daysActive[i]){
+                builder.append(dayColumnSearch(i));
+                builder.append(" = ");
+                builder.append(1);
+                break;
+            }
+        }
+        database.execSQL(builder.toString());
+        Log.e("KevinRuntime", "Removing Constraint " + constraint.toString() + "SQL statement: " + builder.toString());
+    }
 }
