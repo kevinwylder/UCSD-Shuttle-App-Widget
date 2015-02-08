@@ -17,9 +17,11 @@ import android.widget.RemoteViews;
  */
 public class ShuttleWidgetProvider extends AppWidgetProvider {
 
+    // these values are needed to draw the widget and are written on response from StopSchedulerService
     String stopName = "Default Stop";
     String stopTime = "Default Time";
     int widgetColor = Color.WHITE;
+    int textColor = Color.BLACK;
     /**
      * This overridden method is where the Widget's views will be updated.
      * notice that RemoteViews is used because we don't have access to manipulate the views directly
@@ -41,11 +43,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.timeRangeText, updatePendingIntent);
         views.setTextViewText(R.id.stopNameText, stopTime);
         views.setTextViewText(R.id.timeRangeText, stopName);
-        // get a text color that contrasts the background color
-        int textColor = Color.BLACK;
-        if(widgetColor != Color.WHITE){
-            textColor = Color.WHITE;
-        }
+
         // set background colors and text colors
         views.setInt(R.id.widgetBackground, "setBackgroundColor", widgetColor);
         views.setInt(R.id.stopNameText, "setTextColor", textColor);
@@ -68,7 +66,8 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
             // response to any update to time or stop, runs the onUpdate function
             stopName = intent.getStringExtra(StopSchedulerService.STOP_NAME);
             stopTime = intent.getStringExtra(StopSchedulerService.STOP_TIME);
-            widgetColor = intent.getIntExtra(StopSchedulerService.WIDGET_COLOR, Color.WHITE);
+            widgetColor = intent.getIntExtra(StopSchedulerService.BG_COLOR, Color.WHITE);
+            textColor = intent.getIntExtra(StopSchedulerService.TEXT_COLOR, Color.BLACK);
 
             AppWidgetManager gm = AppWidgetManager.getInstance(context);
             int[] ids = gm.getAppWidgetIds(new ComponentName(context, ShuttleWidgetProvider.class));

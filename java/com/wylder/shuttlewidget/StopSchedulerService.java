@@ -25,13 +25,15 @@ public class StopSchedulerService extends IntentService {
 
     public static final String BROADCAST_UPDATE_ACTION = "com.wylder.shuttlewidget.HAS_NEW_SHIT";
 
+    // constants for the network requests
     private static final int TIMEOUT_MILLIS = 10000;
     private static final int BUFFER_SIZE = 1000;
 
     // Strings to use when dealing with data in an Intent
     public static final String STOP_NAME = "stop name";
     public static final String STOP_TIME = "stop time";
-    public static final String WIDGET_COLOR = "widget color";
+    public static final String TEXT_COLOR = "text color";
+    public static final String BG_COLOR = "background color";
     public static final String UPDATE_TYPE = "update type";
 
     // codes for type of request sent to this Service
@@ -62,11 +64,14 @@ public class StopSchedulerService extends IntentService {
             if(currentConstraint != null) {
                 // use the constraint the database found for the current time
                 responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
-                responseIntent.putExtra(WIDGET_COLOR, currentConstraint.getWidgetColor());
+                responseIntent.putExtra(TEXT_COLOR, currentConstraint.getTextColor());
+                responseIntent.putExtra(BG_COLOR, currentConstraint.getBackgroundColor());
             }else{
                 // the database has no constraint at this time
-                responseIntent.putExtra(WIDGET_COLOR, Color.WHITE);
                 responseIntent.putExtra(STOP_NAME, "Current Location");
+                // the last element in the ShuttleConstants color lists are the default colors
+                responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
+                responseIntent.putExtra(BG_COLOR, ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
             }
             // tell the user to click and update the stop time
             responseIntent.putExtra(STOP_TIME, "Update");
@@ -79,9 +84,11 @@ public class StopSchedulerService extends IntentService {
                         0, 4);      // 0 and 4 represent Counter and Canyon View respectively
             }
             // do the internet request in helper method
+            String stopTime = getStopTime(currentConstraint);
             responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
-            responseIntent.putExtra(STOP_TIME, getStopTime(currentConstraint));
-            responseIntent.putExtra(WIDGET_COLOR, currentConstraint.getWidgetColor());
+            responseIntent.putExtra(STOP_TIME, stopTime);
+            responseIntent.putExtra(TEXT_COLOR, currentConstraint.getTextColor());
+            responseIntent.putExtra(BG_COLOR, currentConstraint.getBackgroundColor());
         }
         this.sendBroadcast(responseIntent);
         database.closeDatabase();
@@ -98,17 +105,12 @@ public class StopSchedulerService extends IntentService {
         if(networkInfo == null || !networkInfo.isConnected()){
             return "No Internet";
         }
-        int onlineRouteNumber;
-        if(constraint.routeId == 0){
-            onlineRouteNumber = 1113;
-        }else{
-            onlineRouteNumber = 1114;
-        }
-        String stopListUrl = "http://www.ucsdbus.com/m/routes/" + onlineRouteNumber + "/stops/";
-        String[] onlineStopIds = getUrlSplit(stopListUrl, "<a href=\"/m/routes/" + onlineRouteNumber + "/stops/", "\">");
-        String stopArrivalUrl = stopListUrl + onlineStopIds[constraint.stopId];
-        String[] arrivalTime = getUrlSplit(stopArrivalUrl, "<strong>", "</strong>");
-        if(arrivalTime[0].contains("min")) {
+        String url = "http://www.ucsdbus.com/m/routes/" + ShuttleConstants.onlineRouteIds[constraint.routeId]
+                + "/stops/" + ShuttleConstants.onlineStopIds[constraint.routeId][constraint.stopId];
+        String[] arrivalTime = getUrlSplit(url, "<strong>", "</strong>");
+        if(arrivalTime == null || arrivalTime.length < 1){
+            return "Error";
+        }else if(arrivalTime[0].contains("min")) {
             return arrivalTime[0];
         }else{
             return "Unavailable";

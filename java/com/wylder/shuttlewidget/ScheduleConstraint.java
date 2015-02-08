@@ -122,11 +122,19 @@ public class ScheduleConstraint {
     // getter methods for String representations of different aspects.
 
     public String getRouteName(){
-        return ShuttleConstants.routes[routeId];
+        return ShuttleConstants.routeNames[routeId];
     }
 
     public String getStopName(){
-        return ShuttleConstants.stops[stopId];
+        return ShuttleConstants.stopNames[routeId][stopId];
+    }
+
+    public int getTextColor(){
+        return ShuttleConstants.textColors[routeId];
+    }
+
+    public int getBackgroundColor(){
+        return ShuttleConstants.widgetColors[routeId];
     }
 
     /**

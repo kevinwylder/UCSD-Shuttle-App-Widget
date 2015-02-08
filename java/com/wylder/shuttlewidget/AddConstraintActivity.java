@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.lang.reflect.Field;
@@ -30,6 +32,36 @@ public class AddConstraintActivity extends Activity {
     private DaySelector daysOfTheWeek;
     private Button submitButton;
 
+    private ArrayAdapter<String> routesAdapter;
+    private ArrayAdapter<String> stopsAdapter;
+    private ArrayList<String> stopsAdapterDataBackend;
+
+    private AdapterView.OnItemSelectedListener onRouteSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int selected, long l) {
+            if(!stopsAdapter.isEmpty()) {
+                stopsAdapterDataBackend.clear();
+                for(int i = 0; i < ShuttleConstants.stopNames[selected].length; i++){
+                    stopsAdapterDataBackend.add(ShuttleConstants.stopNames[selected][i]);
+                }
+                stopsAdapter.notifyDataSetChanged();
+            }
+            adapterView.setBackgroundColor(ShuttleConstants.widgetColors[selected]);
+            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.textColors[selected]);
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+            if(!stopsAdapter.isEmpty()){
+                stopsAdapterDataBackend.clear();
+                stopsAdapter.notifyDataSetChanged();
+            }
+            // the last element in the ShuttleConstants color lists are the default colors
+            adapterView.setBackgroundColor(ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
+            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
+        }
+    };
+
     @Override
     public void onCreate(Bundle sis){
         // setup views
@@ -41,15 +73,21 @@ public class AddConstraintActivity extends Activity {
         setUpTimePicker(startTime);
         setUpTimePicker(endTime);
 
-        ArrayAdapter<String> routesAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_dropdown_item, ShuttleConstants.routes);
-        ArrayAdapter<String> stopsAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_dropdown_item, ShuttleConstants.stops);
+        // create ArrayAdapters for each dataset. stops must have a backend because it will change
+        stopsAdapterDataBackend = new ArrayList<String>();
+        for(int i = 0; i < ShuttleConstants.stopNames[0].length; i++){
+            stopsAdapterDataBackend.add(ShuttleConstants.stopNames[0][i]);
+        }
+        routesAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item,
+                ShuttleConstants.routeNames);
+        stopsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item,
+                stopsAdapterDataBackend);
 
         routeSpinner = (Spinner) findViewById(R.id.routeSpinner);
         stopSpinner  = (Spinner) findViewById(R.id.stopSpinner);
         routeSpinner.setAdapter(routesAdapter);
         stopSpinner.setAdapter(stopsAdapter);
+        routeSpinner.setOnItemSelectedListener(onRouteSelectedListener);
 
         daysOfTheWeek = (DaySelector) findViewById(R.id.weekView);
         submitButton = (Button) findViewById(R.id.button);

@@ -16,7 +16,7 @@
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/routeSpinner"/>
+            android:id="@+id/routeSpinner" />
 
         <Spinner
             android:layout_width="match_parent"

@@ -39,9 +39,8 @@ public class WeekView extends View {
     private Paint borderPaint = new Paint();
     private Paint largeTextPaint = new Paint();
     private Paint smallTextPaint = new Paint();
-    private Paint smallTextWhitePaint = new Paint();
-    private Paint clockwisePaint = new Paint();
-    private Paint counterPaint = new Paint();
+    private Paint stopTextPaint = new Paint();
+    private Paint stopBackgroundPaint = new Paint();
 
     private static final String[] dayAbbreviations = new String[]{
             "Mon",
@@ -64,10 +63,8 @@ public class WeekView extends View {
         borderPaint.setStyle(Paint.Style.STROKE);
         largeTextPaint.setTextSize(LARGE_TEXT_SIZE * ONE_DIP);
         smallTextPaint.setTextSize(SMALL_TEXT_SIZE * ONE_DIP);
-        clockwisePaint.setColor(Color.BLUE);
-        counterPaint.setColor(Color.RED);
-        smallTextWhitePaint.set(smallTextPaint);
-        smallTextWhitePaint.setColor(Color.WHITE);
+        stopBackgroundPaint.setStyle(Paint.Style.FILL);
+        stopTextPaint.set(smallTextPaint);
     }
 
     /**
@@ -100,16 +97,13 @@ public class WeekView extends View {
                         // draw a colored box
                         float startX = sizedPadding + smallerBoxWidth + (hourBoxWidth * day);
                         float startY = sizedPadding + smallerBoxHeight + (hourBoxHeight * (hour - ShuttleConstants.HOUR_START));
-                        if(constraint.routeId == 0) {
-                            canvas.drawRect(startX, startY, startX + hourBoxWidth, startY + hourBoxHeight, counterPaint);
-                        }else{
-                            canvas.drawRect(startX, startY, startX + hourBoxWidth, startY + hourBoxHeight, clockwisePaint);
-                        }
+                        stopTextPaint.setColor(constraint.getTextColor());
+                        stopBackgroundPaint.setColor(constraint.getBackgroundColor());
+                        canvas.drawRect(startX, startY, startX + hourBoxWidth, startY + hourBoxHeight, stopBackgroundPaint);
                         // write the bus name/route
                         canvas.drawText(constraint.getStopName(),
                                 startX + (hourBoxWidth - smallTextPaint.measureText(constraint.getStopName())) / 2.0f,
-                                startY + (hourBoxHeight + smallTextPaint.getTextSize()) / 2.0f,
-                                smallTextWhitePaint);
+                                startY + (hourBoxHeight + smallTextPaint.getTextSize()) / 2.0f, stopTextPaint);
                     }
                 }
             }
