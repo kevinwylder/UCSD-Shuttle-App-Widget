@@ -1,6 +1,8 @@
 package com.wylder.shuttlewidget;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -13,22 +15,64 @@ import android.widget.Toast;
  * of ScheduleConstraints and a ListView with each constraint listed - inside a ViewPager
  * It also launches AddConstraintActivity for a result.
  */
-public class StopSchedulerActivity extends Activity {
+public class StopSchedulerActivity extends Activity{
 
     private static final int REQUEST_CODE = 12;
 
+    private static final String[] tabNames = {
+            "Week View", "List View"
+    };
+
     private ViewPager pager;
     private ConstraintViewAdapter adapter;
+    private ActionBar actionBar;
     private ConstraintDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setup views and the database
         pager = new ViewPager(this);
+        // setup the actionbar to have tabs
+        actionBar = getActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        for(int i = 0; i < tabNames.length; i++){
+            final int position = i;
+            ActionBar.Tab tab = actionBar.newTab();
+            tab.setText(tabNames[i]);
+            tab.setTabListener(new ActionBar.TabListener() {
+                @Override
+                public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+                    pager.setCurrentItem(position);
+                }
+
+                @Override
+                public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
+
+                @Override
+                public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
+            });
+            actionBar.addTab(tab);
+        }
+        // setup views and the database
         adapter = new ConstraintViewAdapter(this);
         database = new ConstraintDatabase(this);
         pager.setAdapter(adapter);
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            /**
+             * Called when the ViewPager moves pages
+             * @param position the new selected page index
+             */
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+        });
         setContentView(pager);
     }
 
@@ -96,6 +140,4 @@ public class StopSchedulerActivity extends Activity {
 
         }
     }
-
-
 }
