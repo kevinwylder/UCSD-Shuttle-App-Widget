@@ -11,9 +11,13 @@ import android.view.View;
 
 /**
  * Created by kevin on 2/2/15.
+ *
+ * A view that allows the user to see a visual representation of shuttle days
+ * if enabled, users can select days of the week
  */
 public class DaySelector extends View {
 
+    // painting instance variables
     private float viewWidth = 0f;
     private float viewHeight = 0f;
     private float padding = 0;
@@ -23,12 +27,14 @@ public class DaySelector extends View {
     private float cellHeight = 0f;
     private float textYOffset = 0f;
 
+    // constants
     private static final float textSize = 13f;
     private static final float textBoldness = 1f;
     private static final float cellStrokeWidth = 3f;
     private static final float paddingPercentage = 0.02f;
     private float ONE_DIP;
 
+    // paints
     private Paint cellPaint = new Paint();
     private Paint textPaint = new Paint();
     private Paint selectedPaint = new Paint();
@@ -57,6 +63,10 @@ public class DaySelector extends View {
         textPaint.setStrokeWidth(textBoldness * ONE_DIP);
     }
 
+    /**
+    * Called when the size of the view changes, including initialization.
+    * here we setup specific instance variables to help paint
+    */
     @Override
     public void onSizeChanged(int width, int height, int oldWidth, int oldHeight){
         viewWidth = width;
@@ -69,6 +79,11 @@ public class DaySelector extends View {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
     }
 
+    /**
+     * called to draw the paint onto the given Canvas.
+     *
+     * @param canvas the object that will take drawing instructions
+     */
     @Override
     public void onDraw(Canvas canvas){
         float x = startX;   // variable that will move across the view
@@ -90,12 +105,13 @@ public class DaySelector extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // check if touchdown, then if it is in the range of Y values
+        // if enabled, check for touchdown event then if it is in the range of Y values
         if(this.isEnabled() &&
                 event.getAction() == MotionEvent.ACTION_DOWN &&
                 event.getY() > padding &&
                 event.getY() < viewHeight - padding){
             float x = event.getX();
+            // get the index of the clicked day mathematically
             int weekIndex = (int) ((ShuttleConstants.DAYS_OF_THE_WEEK * (x - padding)) / (viewWidth - (2 * padding)));
             if(weekIndex < ShuttleConstants.DAYS_OF_THE_WEEK){  // weekIndex is 7 if touching the far right padding, that would be a problem
                 selectedDays[weekIndex] = !selectedDays[weekIndex];
@@ -104,6 +120,8 @@ public class DaySelector extends View {
         }
         return super.onTouchEvent(event);
     }
+
+    // accessor and mutator methods for selectedDays. gives a programmatic interface to the dayView
 
     public boolean[] getSelectedDays(){
         return selectedDays;

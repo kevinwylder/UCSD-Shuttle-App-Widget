@@ -2,9 +2,12 @@ package com.wylder.shuttlewidget;
 
 /**
  * Created by kevin on 2/5/15.
+ *
+ * A class containing static information needed throughout the whole application
  */
 public class ShuttleConstants {
 
+    // shuttles are Monday - Saturday, 7am - 11pm
     public static final int DAYS_OF_THE_WEEK = 6;
     public static final int HOUR_START = 7;
     public static final int HOUR_END = 23;

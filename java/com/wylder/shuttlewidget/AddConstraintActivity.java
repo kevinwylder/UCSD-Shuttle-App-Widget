@@ -16,6 +16,10 @@ import java.util.ArrayList;
 
 /**
  * Created by kevin on 2/2/15.
+ *
+ * Activity to give a UI to construct a new ScheduleConstraint
+ * Meant to be used with startActivityForResult()
+ * result is an intent that can be used in the ScheduleConstraint constructor
  */
 public class AddConstraintActivity extends Activity {
 
@@ -28,6 +32,7 @@ public class AddConstraintActivity extends Activity {
 
     @Override
     public void onCreate(Bundle sis){
+        // setup views
         super.onCreate(sis);
         setContentView(R.layout.add_constraint);
 
@@ -52,18 +57,25 @@ public class AddConstraintActivity extends Activity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // use all the views to make a ScheduleConstraint
                 ScheduleConstraint constraint = new ScheduleConstraint(daysOfTheWeek.getSelectedDays(),
                         startTime.getCurrentHour(), endTime.getCurrentHour(),
                         routeSpinner.getSelectedItemPosition(), stopSpinner.getSelectedItemPosition()
                 );
                 Intent returnIntent = new Intent();
-                constraint.setConstraintInfo(returnIntent);
+                constraint.setConstraintInfo(returnIntent);    // load constraint info into the intent
                 setResult(constraint.legality(), returnIntent);
                 finish();
             }
         });
     }
 
+    /**
+     * this method manipulates the given TimePicker to not have a scrollable minute column
+     * It works by accessing the class and getting a field by name
+     *
+     * http://stackoverflow.com/a/22958654
+     */
     private void setUpTimePicker(TimePicker picker){
         try{
             // find the field in the class to manipulate. this feels sketchy.
