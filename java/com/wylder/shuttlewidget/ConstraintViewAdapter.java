@@ -109,6 +109,11 @@ public class ConstraintViewAdapter extends PagerAdapter {
     public void updateConstraintsFromDatabase(){
         constraints = database.getAllConstraints();
         ((WeekView) views[0]).displayConstraints(constraints);
+        // if the length of the array is 0, getView is never called and we never have a chance to
+        // explain why the list is empty. we will show a TextView if there is only 1 null constraint
+        if(constraints.length == 0){
+            constraints = new ScheduleConstraint[]{null};
+        }
         ConstraintListAdapter adapter = new ConstraintListAdapter(context, constraints);
         ((ListView) views[1]).setAdapter(adapter);
 

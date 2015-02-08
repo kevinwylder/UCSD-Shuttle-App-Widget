@@ -1,12 +1,15 @@
 package com.wylder.shuttlewidget;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 /**
  * Created by kevin on 2/6/15.
@@ -33,6 +36,15 @@ public class ConstraintListAdapter extends ArrayAdapter<ScheduleConstraint> {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
+        // if the first item in the list is a null constraint, there are no constraints.
+        if(getItem(0) == null){
+            // create a textview explaining how to add constraints
+            TextView returnView = new TextView(getContext());
+            returnView.setText("No Constraints, Tap + to Add");
+            returnView.setGravity(Gravity.CENTER);
+            returnView.setHeight(parent.getHeight());
+            return returnView;
+        }
         View returner = convertView;
         if(convertView == null){    // if the view hasn't been inflated before (ie, not recycled)
             LayoutInflater layoutInflater = LayoutInflater.from(getContext());

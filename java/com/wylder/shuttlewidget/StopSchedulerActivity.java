@@ -3,11 +3,26 @@ package com.wylder.shuttlewidget;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 /**
@@ -53,9 +68,13 @@ public class StopSchedulerActivity extends Activity{
             });
             actionBar.addTab(tab);
         }
-        // setup views and the database
-        adapter = new ConstraintViewAdapter(this);
+        // create database and display help if first creation of database
         database = new ConstraintDatabase(this);
+        if(database.newDatabaseFlag){
+            displayHelp();
+        }
+        // create and setup views
+        adapter = new ConstraintViewAdapter(this);
         pager.setAdapter(adapter);
         pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -105,6 +124,8 @@ public class StopSchedulerActivity extends Activity{
             Intent startActivity = new Intent(StopSchedulerActivity.this, AddConstraintActivity.class);
             startActivityForResult(startActivity, REQUEST_CODE);
             return true;
+        }else if(id == R.id.help){
+            displayHelp();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -137,7 +158,78 @@ public class StopSchedulerActivity extends Activity{
                 // there was a conflict in the database and we can't use this Constraint
                 Toast.makeText(this, "Constraint not created, there's a conflict with another Constraint", Toast.LENGTH_LONG).show();
             }
-
         }
+    }
+
+    /**
+     * a method to show an overlay leading the user to add a constraint and the widget to the homescreen
+     */
+    public void displayHelp(){
+        // we'll be drawing over the whole window, so let's get a WindowManager
+        WindowManager windowManager = this.getWindowManager();
+        // create a drawing environment the size of the screen
+        DisplayMetrics metrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(metrics);
+        Bitmap bitmap = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        float ONE_DIP = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
+        Rect visibleFrame = new Rect();         // will contain the height of the statusbar in visibleFrame.top
+        getWindow().getDecorView().getWindowVisibleDisplayFrame(visibleFrame);
+
+        // draw the help screen
+        // draw a path that goes around the add button, and the whole screen
+        float guessPosX = 17 * ONE_DIP;
+        float guessPosY = 17 * ONE_DIP;
+
+        float circleRadius = (.2f * metrics.widthPixels);
+        RectF circleDimens = new RectF(
+                metrics.widthPixels - circleRadius - guessPosX, visibleFrame.top - circleRadius + guessPosY,
+                metrics.widthPixels + circleRadius - guessPosX, visibleFrame.top + circleRadius + guessPosY
+        );
+        Path path = new Path();
+        path.moveTo(-50, -50);
+        path.arcTo(circleDimens, 240, -180);
+        path.lineTo(metrics.widthPixels + 50, metrics.heightPixels + 50);
+        path.lineTo(-50, metrics.heightPixels + 50);
+        path.close();
+        Paint paint = new Paint();
+        paint.setColor(Color.argb(200, 0, 153, 204));
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawPath(path, paint);
+        paint.setColor(Color.argb(255, 51, 181, 229));
+        paint.setStrokeWidth(ONE_DIP * 10);
+        paint.setStyle(Paint.Style.STROKE);
+        canvas.drawPath(path, paint);
+        // draw an text on screen
+        paint.setStrokeWidth(ONE_DIP * 2);
+        paint.setTextSize(ONE_DIP * 22);
+        paint.setColor(Color.WHITE);
+        canvas.drawText("Touch the plus", metrics.widthPixels * .15f, metrics.heightPixels * .13f, paint);
+        canvas.drawText("to add a Shuttle", metrics.widthPixels * .14f, metrics.heightPixels * .13f + paint.getTextSize() + 15, paint);
+        canvas.drawText("Updates will be on", (metrics.widthPixels - paint.measureText("Updates will be on")) / 2.0f, metrics.heightPixels * .5f, paint);
+        canvas.drawText("the homescreen widget", (metrics.widthPixels - paint.measureText("the homescreen widget")) / 2.0f, metrics.heightPixels * .5f + paint.getTextSize() + 15, paint);
+        // draw a sample widget on the screen
+        Bitmap stop = BitmapFactory.decodeResource(getResources(), R.drawable.widget_sample);
+  //      canvas.drawBitmap(stop, metrics.widthPixels * .15f, metrics.heightPixels * .7f, paint );
+        Rect src = new Rect(0, 0, stop.getWidth(), stop.getHeight());
+        RectF dst = new RectF(metrics.widthPixels * .15f, metrics.heightPixels * .6f, metrics.widthPixels * .85f, metrics.heightPixels * .75f);
+        canvas.drawBitmap(stop, src, dst, paint);
+        // create an ImageView and draw it to the screen
+        ImageView imageView = new ImageView(this);
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams();
+        params.height = WindowManager.LayoutParams.MATCH_PARENT;
+        params.width = WindowManager.LayoutParams.MATCH_PARENT;
+        params.flags = WindowManager.LayoutParams.FLAG_FULLSCREEN;
+        params.format = PixelFormat.RGBA_8888;
+        imageView.setImageBitmap(bitmap);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                WindowManager manager = (WindowManager) view.getContext().getSystemService(Context.WINDOW_SERVICE);
+                manager.removeViewImmediate(view);
+            }
+        });
+        windowManager.addView(imageView, params);
+
     }
 }

@@ -17,7 +17,7 @@ import java.util.Calendar;
  */
 public class ConstraintDatabase extends SQLiteOpenHelper {
 
-    private static final int VERSION_NUMBER = 4;
+    private static final int VERSION_NUMBER = 5;
 
     private static final String DATABASE_NAME = "scheduleDatabase";
     private static final String TABLE_NAME = "constraints";
@@ -45,6 +45,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
             + COL_DAY_6 + " INTEGER);";
 
     private SQLiteDatabase database;    // saved to prevent costly creation methods
+    public boolean newDatabaseFlag = false; // a flag to notify whether or not it called CREATE_COMMAND
 
     public ConstraintDatabase(Context ctx){
         super(ctx, DATABASE_NAME, null, VERSION_NUMBER);
@@ -54,6 +55,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(CREATE_COMMAND);
+        newDatabaseFlag = true;
     }
 
     @Override

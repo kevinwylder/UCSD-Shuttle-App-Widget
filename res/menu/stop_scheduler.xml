@@ -3,6 +3,13 @@
     tools:context=".StopScheduler" >
     <item android:id="@+id/add_constraint"
         android:title="Add Constraint"
+        android:icon="@drawable/ic_action_new"
         android:orderInCategory="100"
         android:showAsAction="always" />
+    <item
+        android:id="@+id/help"
+        android:title="Help"
+        android:orderInCategory="1"
+        android:showAsAction="always" />
+
 </menu>
