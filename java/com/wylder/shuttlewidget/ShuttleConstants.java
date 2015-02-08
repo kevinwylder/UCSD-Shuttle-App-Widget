@@ -16,12 +16,14 @@ public class ShuttleConstants {
 
     public static final String[] routeNames = new String[]{
             "Counter Campus Loop",
-            "Clockwise Campus Loop"
+            "Clockwise Campus Loop",
+            "Regents"
     };
 
     public static final int[] widgetColors = new int[]{
             Color.RED,
             Color.BLUE,
+            Color.rgb(255, 235, 105),        // light orange
 
             Color.WHITE     // included as a default color
     };
@@ -29,7 +31,7 @@ public class ShuttleConstants {
     public static final int[] textColors = new int[]{
             Color.WHITE,
             Color.WHITE,
-
+            Color.rgb(0, 20, 150),          // dark blue
 
             Color.BLACK     // included as a default color
     };
@@ -70,11 +72,18 @@ public class ShuttleConstants {
                     "Peterson Hall",
                     "Pangea Parking",
                     "ERC"
+            },
+            {
+                    "Price Center",
+                    "Canyonview East",
+                    "Baseball Lot",
+                    "Regents Lot",
+                    "Canyonview West"
             }
     };
 
     public static final int[] onlineRouteIds = {
-            1113, 1114
+            1113, 1114, 1098
     };
 
     public static final int[][] onlineStopIds = {
@@ -93,6 +102,10 @@ public class ShuttleConstants {
                     141138, 239948, 93904,
                     141111, 382912, 382913,
                     141056
+            },
+            {
+                    30732,  377671, 28109,
+                    28122,  32417
             }
     };
 

@@ -46,11 +46,8 @@ public class ConstraintListAdapter extends ArrayAdapter<ScheduleConstraint> {
         stopView.setText(constraint.getStopName());
         timeView.setText(constraint.getTimeRangeString());
         loopView.setText(constraint.getRouteName());
-        if(constraint.routeId == 0){    // counter campus loop, color red
-            loopView.setBackgroundColor(Color.RED);
-        }else{                          // clockwise loop, color blue
-            loopView.setBackgroundColor(Color.BLUE);
-        }
+        loopView.setTextColor(constraint.getTextColor());
+        loopView.setBackgroundColor(constraint.getBackgroundColor());
         DaySelector daySelector = (DaySelector) returner.findViewById(R.id.daySelector);
         daySelector.setEnabled(false);  // don't let the user change the days
         daySelector.setSelectedDays(constraint.daysActive);
