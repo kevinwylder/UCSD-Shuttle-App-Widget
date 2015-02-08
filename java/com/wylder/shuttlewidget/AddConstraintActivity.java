@@ -15,6 +15,7 @@ import android.widget.TimePicker;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by kevin on 2/2/15.
@@ -106,6 +107,17 @@ public class AddConstraintActivity extends Activity {
                 finish();
             }
         });
+
+        // test if the user wants to add a constraint from the widget
+        if(getIntent().getBooleanExtra(StopSchedulerActivity.ACTION_CREATE_CONSTRAINT, false)){
+            // if the user is coming from the widget, set today to true in DaySelector
+            boolean[] days = new boolean[ShuttleConstants.DAYS_OF_THE_WEEK];
+            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
+            if(today != -1){        // avoid crashes on Sunday
+                days[today] = true;
+                daysOfTheWeek.setSelectedDays(days);
+            }
+        }
     }
 
     /**

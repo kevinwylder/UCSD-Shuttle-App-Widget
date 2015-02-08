@@ -129,6 +129,7 @@ public class DaySelector extends View {
 
     public void setSelectedDays(boolean[] selectedDays){
         this.selectedDays = selectedDays;
+        this.invalidate();
     }
 
 

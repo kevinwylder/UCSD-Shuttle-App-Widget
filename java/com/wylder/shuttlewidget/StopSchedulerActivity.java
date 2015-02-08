@@ -33,10 +33,13 @@ import android.widget.Toast;
 public class StopSchedulerActivity extends Activity{
 
     private static final int REQUEST_CODE = 12;
+    // action to open and directly ask to make new constraint
+    public static final String ACTION_CREATE_CONSTRAINT = "com.wylder.shuttlewidget.new constraint";
 
     private static final String[] tabNames = {
             "Week View", "List View"
     };
+
 
     private ViewPager pager;
     private ConstraintViewAdapter adapter;
@@ -67,6 +70,13 @@ public class StopSchedulerActivity extends Activity{
                 public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
             });
             actionBar.addTab(tab);
+        }
+        // if intent has flag to create a new constraint, start AddConstraintActivity
+        if(getIntent().getBooleanExtra(ACTION_CREATE_CONSTRAINT, false)){
+            Intent startActivity = new Intent(StopSchedulerActivity.this, AddConstraintActivity.class);
+            // add same flag to let the class know it should select today
+            startActivity.putExtra(ACTION_CREATE_CONSTRAINT, true);
+            startActivityForResult(startActivity, REQUEST_CODE);
         }
         // create database and display help if first creation of database
         database = new ConstraintDatabase(this);

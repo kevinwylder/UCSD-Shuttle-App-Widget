@@ -22,6 +22,8 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
     String stopTime = "Default Time";
     int widgetColor = Color.WHITE;
     int textColor = Color.BLACK;
+    boolean hasNoStopNow = true;
+
     /**
      * This overridden method is where the Widget's views will be updated.
      * notice that RemoteViews is used because we don't have access to manipulate the views directly
@@ -32,15 +34,25 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
      */
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
-        // create intent to update service, then turn it into PendingIntent
-        Intent updateTimeIntent = new Intent(context, StopSchedulerService.class);
-        updateTimeIntent.putExtra(StopSchedulerService.UPDATE_TYPE, StopSchedulerService.UPDATE_ARRIVAL);
-        PendingIntent updatePendingIntent = PendingIntent.getService(context, 0, updateTimeIntent, PendingIntent.FLAG_ONE_SHOT);
+        // find out whather to request update, or open app asking to make a new constraint
+        PendingIntent onClickIntent;
+        if(hasNoStopNow){
+            // create an intent to open the app and make a new constraint
+            Intent makeConstraint = new Intent(context, StopSchedulerActivity.class);
+            makeConstraint.putExtra(StopSchedulerActivity.ACTION_CREATE_CONSTRAINT, true);
+            onClickIntent = PendingIntent.getActivity(context, 0, makeConstraint, PendingIntent.FLAG_ONE_SHOT);
+        }else{
+            // create intent to update service, then turn it into PendingIntent
+            Intent updateTimeIntent = new Intent(context, StopSchedulerService.class);
+            updateTimeIntent.putExtra(StopSchedulerService.UPDATE_TYPE, StopSchedulerService.UPDATE_ARRIVAL);
+            onClickIntent = PendingIntent.getService(context, 0, updateTimeIntent, PendingIntent.FLAG_ONE_SHOT);
+        }
 
         // update the RemoteViews
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.shuttle_widget);
-        views.setOnClickPendingIntent(R.id.stopNameText, updatePendingIntent);
-        views.setOnClickPendingIntent(R.id.timeRangeText, updatePendingIntent);
+        views.setOnClickPendingIntent(R.id.stopNameText, onClickIntent);
+        views.setOnClickPendingIntent(R.id.timeRangeText, onClickIntent);
+        views.setOnClickPendingIntent(R.id.widgetBackground, onClickIntent);
         views.setTextViewText(R.id.stopNameText, stopTime);
         views.setTextViewText(R.id.timeRangeText, stopName);
 
@@ -68,6 +80,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
             stopTime = intent.getStringExtra(StopSchedulerService.STOP_TIME);
             widgetColor = intent.getIntExtra(StopSchedulerService.BG_COLOR, Color.WHITE);
             textColor = intent.getIntExtra(StopSchedulerService.TEXT_COLOR, Color.BLACK);
+            hasNoStopNow = intent.getBooleanExtra(StopSchedulerService.NO_STOP, false);
 
             AppWidgetManager gm = AppWidgetManager.getInstance(context);
             int[] ids = gm.getAppWidgetIds(new ComponentName(context, ShuttleWidgetProvider.class));

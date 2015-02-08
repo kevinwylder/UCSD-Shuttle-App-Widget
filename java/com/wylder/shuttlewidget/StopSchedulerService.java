@@ -2,7 +2,6 @@ package com.wylder.shuttlewidget;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -34,6 +33,7 @@ public class StopSchedulerService extends IntentService {
     public static final String STOP_TIME = "stop time";
     public static final String TEXT_COLOR = "text color";
     public static final String BG_COLOR = "background color";
+    public static final String NO_STOP = "nostop";
     public static final String UPDATE_TYPE = "update type";
 
     // codes for type of request sent to this Service
@@ -50,8 +50,7 @@ public class StopSchedulerService extends IntentService {
 
     /**
      * This method as a part of IntentService handles intents sent to the service in a separate thread
-     * this is very useful because database operations, HTTP connections, and potential Location services
-     * are needed to find the stop/route time
+     * this is very useful because database operations and HTTP connections are needed to find the stop/route time
      * @param intent an intent that asks for either Stop updates, or Time updates
      */
     @Override
@@ -60,30 +59,22 @@ public class StopSchedulerService extends IntentService {
         Intent responseIntent = new Intent(BROADCAST_UPDATE_ACTION);
         ConstraintDatabase database = new ConstraintDatabase(this);
         ScheduleConstraint currentConstraint = database.getCurrentConstraint();
-        if(type == UPDATE_STOP){
-            if(currentConstraint != null) {
-                // use the constraint the database found for the current time
-                responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
-                responseIntent.putExtra(TEXT_COLOR, currentConstraint.getTextColor());
-                responseIntent.putExtra(BG_COLOR, currentConstraint.getBackgroundColor());
-            }else{
-                // the database has no constraint at this time
-                responseIntent.putExtra(STOP_NAME, "Current Location");
-                // the last element in the ShuttleConstants color lists are the default colors
-                responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
-                responseIntent.putExtra(BG_COLOR, ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
-            }
-            // tell the user to click and update the stop time
+        if(currentConstraint == null){
+            // the database has no constraint at this time, let the user add one
+            responseIntent.putExtra(STOP_TIME, "No Stop");
+            responseIntent.putExtra(STOP_NAME, "Touch to add Stop");
+            responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
+            responseIntent.putExtra(BG_COLOR, ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
+            responseIntent.putExtra(NO_STOP, true);
+        }else if(type == UPDATE_STOP){
+            // the widget asked for an update the current stop. don't worry about arrival time because
+            // the user probably isn't there.
+            responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
+            responseIntent.putExtra(TEXT_COLOR, currentConstraint.getTextColor());
+            responseIntent.putExtra(BG_COLOR, currentConstraint.getBackgroundColor());
             responseIntent.putExtra(STOP_TIME, "Update");
         }else{
-            if(currentConstraint == null){
-                // get the stop via location services... we'll do this later
-                // in the meantime, the default is CanyonView Pool Counter Clockwise
-                currentConstraint = new ScheduleConstraint(new boolean[ShuttleConstants.DAYS_OF_THE_WEEK],
-                        ShuttleConstants.HOUR_START, ShuttleConstants.HOUR_END,
-                        0, 4);      // 0 and 4 represent Counter and Canyon View respectively
-            }
-            // do the internet request in helper method
+            // the user tapped the update button and now we need to get the time till arrival.
             String stopTime = getStopTime(currentConstraint);
             responseIntent.putExtra(STOP_NAME, currentConstraint.getStopName());
             responseIntent.putExtra(STOP_TIME, stopTime);
