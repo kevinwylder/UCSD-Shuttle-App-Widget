@@ -1,5 +1,7 @@
 package com.wylder.shuttlewidget;
 
+import android.graphics.Color;
+
 /**
  * Created by kevin on 2/5/15.
  *
@@ -15,6 +17,11 @@ public class ShuttleConstants {
     public static final String[] routes = new String[]{
             "Counter Campus Loop",
             "Clockwise Campus Loop"
+    };
+
+    public static final int[] widgetColors = new int[]{
+            Color.RED,
+            Color.BLUE
     };
 
     public static final String[] stops = new String[]{

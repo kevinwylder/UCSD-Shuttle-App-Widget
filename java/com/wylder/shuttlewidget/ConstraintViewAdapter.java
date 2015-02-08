@@ -1,8 +1,11 @@
 package com.wylder.shuttlewidget;
 
 import android.app.AlertDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,11 +104,27 @@ public class ConstraintViewAdapter extends PagerAdapter {
     /**
      * a public method intended to be called when the ViewPager is out of date with data in the Database
      * ie after addition or deletion in database
+     * This also updates the Widgets on the homescreen
      */
     public void updateConstraintsFromDatabase(){
         constraints = database.getAllConstraints();
         ((WeekView) views[0]).displayConstraints(constraints);
         ConstraintListAdapter adapter = new ConstraintListAdapter(context, constraints);
         ((ListView) views[1]).setAdapter(adapter);
+
+        // as a bonus, request the appwidget to update because something changed
+        Intent intent = new Intent(context, ShuttleWidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+                AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context,
+                        ShuttleWidgetProvider.class)));
+        context.sendBroadcast(intent);
+    }
+
+    /**
+     * a method to signal closing the database
+     */
+    public void closeDatabase(){
+        database.closeDatabase();
     }
 }

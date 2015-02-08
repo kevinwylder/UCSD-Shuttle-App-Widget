@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -39,6 +38,16 @@ public class StopSchedulerActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.stop_scheduler, menu);
         return true;
+    }
+
+    /**
+     * a method to cleanup after the activity finishes. here we close the database
+     */
+    @Override
+    public void onDestroy(){
+        database.closeDatabase();
+        adapter.closeDatabase();
+        super.onDestroy();
     }
 
     @Override
@@ -78,12 +87,10 @@ public class StopSchedulerActivity extends Activity {
             // If we've made it this far, we may as well create the ScheduleConstraint
             ScheduleConstraint constraint = new ScheduleConstraint(data);
             if(!database.constraintConflict(constraint)){   // no conflict in database
-                Log.e("KevinRuntime", "adding constraint returned from AddConstraintActivity");
                 database.addConstraint(constraint);
                 adapter.updateConstraintsFromDatabase();
             }else{
                 // there was a conflict in the database and we can't use this Constraint
-                Log.e("KevinRuntime", "ConstraintDatabase found a conflicting constraint, so It's not being added to the database");
                 Toast.makeText(this, "Constraint not created, there's a conflict with another Constraint", Toast.LENGTH_LONG).show();
             }
 

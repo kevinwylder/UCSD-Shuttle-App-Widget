@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.widget.RemoteViews;
 
 /**
@@ -18,7 +19,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
 
     String stopName = "Default Stop";
     String stopTime = "Default Time";
-
+    int widgetColor = Color.WHITE;
     /**
      * This overridden method is where the Widget's views will be updated.
      * notice that RemoteViews is used because we don't have access to manipulate the views directly
@@ -40,6 +41,15 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.timeRangeText, updatePendingIntent);
         views.setTextViewText(R.id.stopNameText, stopTime);
         views.setTextViewText(R.id.timeRangeText, stopName);
+        // get a text color that contrasts the background color
+        int textColor = Color.BLACK;
+        if(widgetColor != Color.WHITE){
+            textColor = Color.WHITE;
+        }
+        // set background colors and text colors
+        views.setInt(R.id.widgetBackground, "setBackgroundColor", widgetColor);
+        views.setInt(R.id.stopNameText, "setTextColor", textColor);
+        views.setInt(R.id.timeRangeText, "setTextColor", textColor);
 
         // signal update to the AppWidgetManager
         appWidgetManager.updateAppWidget(appWidgetIds, views);
@@ -58,6 +68,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
             // response to any update to time or stop, runs the onUpdate function
             stopName = intent.getStringExtra(StopSchedulerService.STOP_NAME);
             stopTime = intent.getStringExtra(StopSchedulerService.STOP_TIME);
+            widgetColor = intent.getIntExtra(StopSchedulerService.WIDGET_COLOR, Color.WHITE);
 
             AppWidgetManager gm = AppWidgetManager.getInstance(context);
             int[] ids = gm.getAppWidgetIds(new ComponentName(context, ShuttleWidgetProvider.class));

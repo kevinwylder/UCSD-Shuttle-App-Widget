@@ -137,6 +137,13 @@ public class ScheduleConstraint {
     }
 
     /**
+     * returns an integer color that corresponds to the route
+     */
+    public int getWidgetColor(){
+        return ShuttleConstants.widgetColors[routeId];
+    }
+
+    /**
      * a static method that turns any int into a time
      * it doesn't check for hours > 24 but that's no problem
      * @param hour a 24 hour representation of the time to parse into am/pm

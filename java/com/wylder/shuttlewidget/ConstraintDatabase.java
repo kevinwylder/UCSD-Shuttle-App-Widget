@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import java.util.Calendar;
 
@@ -95,7 +94,6 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
     public boolean addConstraint(ScheduleConstraint constraint){
         // check if daysActive is filled out
         if(constraint.daysActive.length != ShuttleConstants.DAYS_OF_THE_WEEK){
-            Log.e("KevinRuntime", "invalid constraint length " + constraint.daysActive.length);
             return false;
         }
         // check if in the hour range
@@ -132,7 +130,6 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery("Select * from " + TABLE_NAME, null);
         cursor.moveToFirst();
         ScheduleConstraint[] constraints = new ScheduleConstraint[cursor.getCount()];
-        Log.e("KevinRuntime", "Getting all Constraints... there are " + constraints.length);
         for(int i = 0; i < constraints.length; i++){
             constraints[i] = getNextConstraint(cursor);     // use a helper method to read next Constraint in Cursor
         }
@@ -159,11 +156,9 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         query.append(dayColumnSearch(currentDay));      // a helper method to get the day column
         query.append(" IS 1)");
         Cursor result = database.rawQuery(query.toString(), null);
-        Log.e("KevinRuntime", "Query for getting the current constraint: " + query.toString());
         if(result.getCount() == 0){
             return null;
         }else{
-            Log.e("KevinRuntime", "The number of stops that match the current time/date is " + result.getCount());
             result.moveToFirst();   // setup the cursor for the helper method
             return getNextConstraint(result);
         }
@@ -190,7 +185,6 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
             }
         }
         database.execSQL(builder.toString());
-        Log.e("KevinRuntime", "Removing Constraint " + constraint.toString() + "SQL statement: " + builder.toString());
     }
 
     /**
