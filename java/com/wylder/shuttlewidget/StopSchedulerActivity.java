@@ -32,7 +32,9 @@ import android.widget.Toast;
  */
 public class StopSchedulerActivity extends Activity{
 
-    private static final int REQUEST_CODE = 12;
+    public static final int REQUEST_CODE = 12;
+    public static final int RESULT_CLOSE = 244;    // return this to close the app onResult
+
     // action to open and directly ask to make new constraint
     public static final String ACTION_CREATE_CONSTRAINT = "com.wylder.shuttlewidget.new constraint";
 
@@ -152,8 +154,12 @@ public class StopSchedulerActivity extends Activity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(resultCode == Activity.RESULT_CANCELED) {
             Toast.makeText(this, "Press button to add constraint", Toast.LENGTH_SHORT).show();
+        }else if(resultCode == RESULT_CLOSE){   // special case where the user opened the app from the widget and pressed actionbar up arrow
+            finish();
         }else if(resultCode == ScheduleConstraint.BAD_TIME_RANGE){
             Toast.makeText(this, "Constraint not created, bad time range", Toast.LENGTH_LONG).show();
+        }else if(resultCode == ScheduleConstraint.SHUTTLE_NOT_RUNNING){
+            Toast.makeText(this, "Constraint not created, shuttle doesn't run during that time", Toast.LENGTH_LONG).show();
         }else if(resultCode == ScheduleConstraint.NO_DAYS_SELECTED){
             Toast.makeText(this, "Constraint not created, no days selected", Toast.LENGTH_LONG).show();
         }else if(resultCode == ScheduleConstraint.EMPTY_CONSTRAINT){

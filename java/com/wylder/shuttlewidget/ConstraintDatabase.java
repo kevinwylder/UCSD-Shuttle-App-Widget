@@ -154,6 +154,10 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         query.append(COL_START_HOUR);
         query.append(" AND ");
         query.append(COL_END_HOUR);
+        query.append(") AND ( NOT ");
+        query.append(currentHour);
+        query.append(" IS ");
+        query.append(COL_END_HOUR);
         query.append(") AND (");
         query.append(dayColumnSearch(currentDay));      // a helper method to get the day column
         query.append(" IS 1)");

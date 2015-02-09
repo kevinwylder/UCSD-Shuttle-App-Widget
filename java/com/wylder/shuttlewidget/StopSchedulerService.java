@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * Created by kevin on 2/1/15
@@ -33,7 +34,7 @@ public class StopSchedulerService extends IntentService {
     public static final String STOP_TIME = "stop time";
     public static final String TEXT_COLOR = "text color";
     public static final String BG_COLOR = "background color";
-    public static final String NO_STOP = "nostop";
+    public static final String CREATE_STOP_FLAG = "nostop";
     public static final String UPDATE_TYPE = "update type";
 
     // codes for type of request sent to this Service
@@ -60,12 +61,22 @@ public class StopSchedulerService extends IntentService {
         ConstraintDatabase database = new ConstraintDatabase(this);
         ScheduleConstraint currentConstraint = database.getCurrentConstraint();
         if(currentConstraint == null){
-            // the database has no constraint at this time, let the user add one
-            responseIntent.putExtra(STOP_TIME, "No Stop");
-            responseIntent.putExtra(STOP_NAME, "Touch to add Stop");
+            // the database has no constraint at this time
+            // check if we can add a constraint right now
+            Calendar calendar = Calendar.getInstance();
+            if(     calendar.get(Calendar.DAY_OF_WEEK) - 2 != -1                        // if not Sunday,
+                 && calendar.get(Calendar.HOUR_OF_DAY) >= ShuttleConstants.HOUR_START    // after start hour,
+                 && calendar.get(Calendar.HOUR_OF_DAY) <= ShuttleConstants.HOUR_END      // and before end hour
+                ){
+                responseIntent.putExtra(STOP_TIME, "Unavailable");
+                responseIntent.putExtra(STOP_NAME, "No Shuttles Running");
+            }else{
+                responseIntent.putExtra(STOP_TIME, "No Stop");
+                responseIntent.putExtra(STOP_NAME, "Touch to add Stop");
+                responseIntent.putExtra(CREATE_STOP_FLAG, true);
+            }
             responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
             responseIntent.putExtra(BG_COLOR, ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
-            responseIntent.putExtra(NO_STOP, true);
         }else if(type == UPDATE_STOP){
             // the widget asked for an update the current stop. don't worry about arrival time because
             // the user probably isn't there.
@@ -102,7 +113,13 @@ public class StopSchedulerService extends IntentService {
         if(arrivalTime == null || arrivalTime.length < 1){
             return "Error";
         }else if(arrivalTime[0].contains("min")) {
-            return arrivalTime[0];
+            String ret = arrivalTime[0].substring(3) + "utes";
+            if(ret.equals("1 minutes")){    // special case
+                ret = ret.substring(0, 8);  // cut off the s
+            }
+            return ret;
+        }else if(arrivalTime[0].contains("arriving")){
+            return "Arriving";
         }else{
             return "Unavailable";
         }

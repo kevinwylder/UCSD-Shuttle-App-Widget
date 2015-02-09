@@ -1,9 +1,11 @@
 package com.wylder.shuttlewidget;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,6 +34,8 @@ public class AddConstraintActivity extends Activity {
     private Spinner stopSpinner;
     private DaySelector daysOfTheWeek;
     private Button submitButton;
+
+    private boolean fromWidget = false;     // a flag for if the intent came from the widget
 
     private ArrayAdapter<String> routesAdapter;
     private ArrayAdapter<String> stopsAdapter;
@@ -73,6 +77,8 @@ public class AddConstraintActivity extends Activity {
         endTime = (TimePicker) findViewById(R.id.endTimePicker);
         setUpTimePicker(startTime);
         setUpTimePicker(endTime);
+        // add 1 to the end hour to start with a valid range
+        endTime.setCurrentHour(endTime.getCurrentHour() + 1);
 
         // create ArrayAdapters for each dataset. stops must have a backend because it will change
         stopsAdapterDataBackend = new ArrayList<String>();
@@ -110,6 +116,7 @@ public class AddConstraintActivity extends Activity {
 
         // test if the user wants to add a constraint from the widget
         if(getIntent().getBooleanExtra(StopSchedulerActivity.ACTION_CREATE_CONSTRAINT, false)){
+            fromWidget = true;
             // if the user is coming from the widget, set today to true in DaySelector
             boolean[] days = new boolean[ShuttleConstants.DAYS_OF_THE_WEEK];
             int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
@@ -118,6 +125,31 @@ public class AddConstraintActivity extends Activity {
                 daysOfTheWeek.setSelectedDays(days);
             }
         }
+
+        // put name and back button in action bar
+        ActionBar actionBar = getActionBar();
+        actionBar.setTitle("Add to Schedule");
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    /**
+     * This overridden method is run when the user clicks the back arrow.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                if(fromWidget) {
+                    // request to close the main activity too
+                    setResult(StopSchedulerActivity.RESULT_CLOSE);
+                }
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -142,6 +174,7 @@ public class AddConstraintActivity extends Activity {
             minutePicker.setDisplayedValues(values.toArray(new String[values.size()]));
         }catch (Exception e){
             Log.e("KevinRuntime", "TimePicker unable to find method to change increments");
+            setResult(Activity.RESULT_CANCELED);
             finish();
         }
     }

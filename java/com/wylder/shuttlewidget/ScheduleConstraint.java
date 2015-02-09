@@ -14,7 +14,8 @@ public class ScheduleConstraint {
     public static final int LEGAL_CONSTRAINT = 1;
     public static final int NO_DAYS_SELECTED = 2;
     public static final int BAD_TIME_RANGE = 3;
-    public static final int EMPTY_CONSTRAINT = 4;
+    public static final int SHUTTLE_NOT_RUNNING = 4;
+    public static final int EMPTY_CONSTRAINT = 5;
 
     // constants Strings that will be used to write the ScheduleConstraint to an Intent
     private static final String DAYS_ACTIVE = "daysactive";
@@ -102,7 +103,7 @@ public class ScheduleConstraint {
             return BAD_TIME_RANGE;       // ends before start
         }
         if(hourStart < ShuttleConstants.HOUR_START | hourEnd > ShuttleConstants.HOUR_END){
-            return BAD_TIME_RANGE;      // operates outside shuttle times
+            return SHUTTLE_NOT_RUNNING;      // operates outside shuttle times
         }
         boolean hasDay = false;
         // loop through daysActive and find if there is a single day selected

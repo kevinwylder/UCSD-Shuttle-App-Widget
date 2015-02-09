@@ -80,7 +80,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
             stopTime = intent.getStringExtra(StopSchedulerService.STOP_TIME);
             widgetColor = intent.getIntExtra(StopSchedulerService.BG_COLOR, Color.WHITE);
             textColor = intent.getIntExtra(StopSchedulerService.TEXT_COLOR, Color.BLACK);
-            hasNoStopNow = intent.getBooleanExtra(StopSchedulerService.NO_STOP, false);
+            hasNoStopNow = intent.getBooleanExtra(StopSchedulerService.CREATE_STOP_FLAG, false);
 
             AppWidgetManager gm = AppWidgetManager.getInstance(context);
             int[] ids = gm.getAppWidgetIds(new ComponentName(context, ShuttleWidgetProvider.class));
