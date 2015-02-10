@@ -68,12 +68,12 @@ public class StopSchedulerService extends IntentService {
                  && calendar.get(Calendar.HOUR_OF_DAY) >= ShuttleConstants.HOUR_START    // after start hour,
                  && calendar.get(Calendar.HOUR_OF_DAY) <= ShuttleConstants.HOUR_END      // and before end hour
                 ){
-                responseIntent.putExtra(STOP_TIME, "Unavailable");
-                responseIntent.putExtra(STOP_NAME, "No Shuttles Running");
-            }else{
                 responseIntent.putExtra(STOP_TIME, "No Stop");
                 responseIntent.putExtra(STOP_NAME, "Touch to add Stop");
                 responseIntent.putExtra(CREATE_STOP_FLAG, true);
+            }else{
+                responseIntent.putExtra(STOP_TIME, "Unavailable");
+                responseIntent.putExtra(STOP_NAME, "No Shuttles Running");
             }
             responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
             responseIntent.putExtra(BG_COLOR, ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
