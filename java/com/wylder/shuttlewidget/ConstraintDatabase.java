@@ -19,7 +19,7 @@ import java.util.Calendar;
  */
 public class ConstraintDatabase extends SQLiteOpenHelper {
 
-    private static final int VERSION_NUMBER = 5;
+    private static final int VERSION_NUMBER = 6;
 
     private static final String DATABASE_NAME = "scheduleDatabase";
     private static final String TABLE_NAME = "constraints";
@@ -32,7 +32,6 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
     private static final String COL_DAY_3 = "Day3";
     private static final String COL_DAY_4 = "Day4";
     private static final String COL_DAY_5 = "Day5";
-    private static final String COL_DAY_6 = "Day6";
 
     private static final String CREATE_COMMAND = "create table " + TABLE_NAME + " ( "
             + COL_ROUTE_NUMBER + " INTEGER, "
@@ -43,8 +42,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
             + COL_DAY_2 + " INTEGER, "
             + COL_DAY_3 + " INTEGER, "
             + COL_DAY_4 + " INTEGER, "
-            + COL_DAY_5 + " INTEGER, "
-            + COL_DAY_6 + " INTEGER);";
+            + COL_DAY_5 + " INTEGER); ";
 
     private ArrayList<OnDatabaseUpdatedListener> listeners = new ArrayList<OnDatabaseUpdatedListener>();
     private SQLiteDatabase database;    // saved to prevent costly creation methods
@@ -150,6 +148,9 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         Calendar calendar = Calendar.getInstance();
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         int currentDay = calendar.get(Calendar.DAY_OF_WEEK) - 2;    // Calendar uses Sunday as day 1, and I need Monday to be index 0
+        if(currentDay < 0 || currentDay >= ShuttleConstants.DAYS_OF_THE_WEEK){
+            return null;    // no shuttles if the currentDay is between the bounds of operation
+        }
         StringBuilder query = new StringBuilder("SELECT * FROM ");
         query.append(TABLE_NAME);
         query.append(" WHERE (");
@@ -167,7 +168,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         query.append(" IS 1)");
         Cursor result = database.rawQuery(query.toString(), null);
         if(result.getCount() == 0){
-            return null;
+            return null;            // no matches for right now, return null
         }else{
             result.moveToFirst();   // setup the cursor for the helper method
             return getNextConstraint(result);
@@ -206,17 +207,17 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
     private String dayColumnSearch(int day){
         switch (day){
             case 0:
-                return COL_DAY_1;
+                return COL_DAY_1;   // Monday
             case 1:
-                return COL_DAY_2;
+                return COL_DAY_2;   // Tuesday
             case 2:
-                return COL_DAY_3;
+                return COL_DAY_3;   // Wednesday
             case 3:
-                return COL_DAY_4;
+                return COL_DAY_4;   // Thursday
             case 4:
-                return COL_DAY_5;
+                return COL_DAY_5;   // Friday
             default:
-                return COL_DAY_6;   // for safety
+                return COL_DAY_5;   // for safety
         }
     }
 

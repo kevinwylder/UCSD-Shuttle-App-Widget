@@ -77,7 +77,7 @@ public class ScheduleConstraint {
      */
     public boolean hasOverlap(ScheduleConstraint constraint){
         // check if the hours overlap
-        if(constraint.hourStart >= this.hourEnd || constraint.hourEnd < this.hourStart){
+        if(constraint.hourStart >= this.hourEnd || constraint.hourEnd <= this.hourStart){
             return false;   // hours don't overlap
         }else{
             // the hours do overlap, but do the days of the week?
