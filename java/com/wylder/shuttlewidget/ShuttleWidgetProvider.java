@@ -74,7 +74,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
      */
     @Override
     public void onReceive(Context context, Intent intent){
-        if(intent.getAction().equals(StopSchedulerService.BROADCAST_UPDATE_ACTION)){
+        if(intent.getAction().equals(StopSchedulerService.BROADCAST_WIDGET_UPDATE)){
             // response to any update to time or stop, runs the onUpdate function
             stopName = intent.getStringExtra(StopSchedulerService.STOP_NAME);
             stopTime = intent.getStringExtra(StopSchedulerService.STOP_TIME);

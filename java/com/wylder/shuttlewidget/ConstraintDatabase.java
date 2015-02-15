@@ -1,10 +1,12 @@
 package com.wylder.shuttlewidget;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -44,6 +46,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
             + COL_DAY_5 + " INTEGER, "
             + COL_DAY_6 + " INTEGER);";
 
+    private ArrayList<OnDatabaseUpdatedListener> listeners = new ArrayList<OnDatabaseUpdatedListener>();
     private SQLiteDatabase database;    // saved to prevent costly creation methods
     public boolean newDatabaseFlag = false; // a flag to notify whether or not it called CREATE_COMMAND
 
@@ -121,6 +124,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
         }
         query.append(" );");
         database.execSQL(query.toString());
+        runUpdateListeners();  // send update broadcast to
         return true;
     }
 
@@ -191,6 +195,7 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
             }
         }
         database.execSQL(builder.toString());
+        runUpdateListeners();
     }
 
     /**
@@ -234,6 +239,31 @@ public class ConstraintDatabase extends SQLiteOpenHelper {
                 cursor.getInt(3), cursor.getInt(0), cursor.getInt(1));
         cursor.moveToNext();
         return ret;
+    }
+
+    /**
+     * an Interface that allows UI elements to receive database updates;
+     */
+    public interface OnDatabaseUpdatedListener{
+        public void onUpdate(ScheduleConstraint[] newConstraints);
+    }
+
+    /**
+     * Run this method to update everything that registered a listener
+     */
+    public void runUpdateListeners(){
+        if(listeners.size() == 0){
+            // don't bother running the expensive getAllConstraints method if nobody's listening
+            return;
+        }
+        ScheduleConstraint[] constraints = getAllConstraints();
+        for(int i = 0; i < listeners.size(); i++){
+            listeners.get(i).onUpdate(constraints);
+        }
+    }
+
+    public void addOnDatabaseUpdatedListener(OnDatabaseUpdatedListener listener){
+        listeners.add(listener);
     }
 
 }

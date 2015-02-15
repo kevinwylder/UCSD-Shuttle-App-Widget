@@ -15,6 +15,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -30,7 +31,7 @@ import android.widget.Toast;
  * of ScheduleConstraints and a ListView with each constraint listed - inside a ViewPager
  * It also launches AddConstraintActivity for a result.
  */
-public class StopSchedulerActivity extends Activity{
+public class StopSchedulerActivity extends FragmentActivity{
 
     public static final int REQUEST_CODE = 12;
     public static final int RESULT_CLOSE = 244;    // return this to close the app onResult
@@ -39,30 +40,30 @@ public class StopSchedulerActivity extends Activity{
     public static final String ACTION_CREATE_CONSTRAINT = "com.wylder.shuttlewidget.new constraint";
 
     private static final String[] tabNames = {
-            "Week View", "List View"
+            "Search", "Week View", "List View"
     };
 
-
     private ViewPager pager;
-    private ConstraintViewAdapter adapter;
+    private MainViewAdapter adapter;
     private ActionBar actionBar;
     private ConstraintDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pager = new ViewPager(this);
+        setContentView(R.layout.main_activity);
+        pager = (ViewPager) findViewById(R.id.pagerValid);
         // setup the actionbar to have tabs
         actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         for(int i = 0; i < tabNames.length; i++){
-            final int position = i;
-            ActionBar.Tab tab = actionBar.newTab();
-            tab.setText(tabNames[i]);
+            final int position = i;                     // make this accessable to the TabListener
+            ActionBar.Tab tab = actionBar.newTab();     // create a new tab
+            tab.setText(tabNames[i]);                   // set the title of the tab
             tab.setTabListener(new ActionBar.TabListener() {
                 @Override
                 public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-                    pager.setCurrentItem(position);
+                    pager.setCurrentItem(position);     // move the pager to the selected tab
                 }
 
                 @Override
@@ -86,7 +87,7 @@ public class StopSchedulerActivity extends Activity{
             displayHelp();
         }
         // create and setup views
-        adapter = new ConstraintViewAdapter(this);
+        adapter = new MainViewAdapter(getSupportFragmentManager(), database);
         pager.setAdapter(adapter);
         pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -104,7 +105,6 @@ public class StopSchedulerActivity extends Activity{
             @Override
             public void onPageScrollStateChanged(int state) {}
         });
-        setContentView(pager);
     }
 
 
@@ -121,7 +121,6 @@ public class StopSchedulerActivity extends Activity{
     @Override
     public void onDestroy(){
         database.closeDatabase();
-        adapter.closeDatabase();
         super.onDestroy();
     }
 
@@ -169,7 +168,6 @@ public class StopSchedulerActivity extends Activity{
             ScheduleConstraint constraint = new ScheduleConstraint(data);
             if(!database.constraintConflict(constraint)){   // no conflict in database
                 database.addConstraint(constraint);
-                adapter.updateConstraintsFromDatabase();
             }else{
                 // there was a conflict in the database and we can't use this Constraint
                 Toast.makeText(this, "Constraint not created, there's a conflict with another Constraint", Toast.LENGTH_LONG).show();

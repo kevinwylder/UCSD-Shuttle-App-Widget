@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,7 +24,8 @@ public class StopSchedulerService extends IntentService {
 
     private static final String SERVICE_NAME = "Get stop info service";
 
-    public static final String BROADCAST_UPDATE_ACTION = "com.wylder.shuttlewidget.HAS_NEW_SHIT";
+    public static final String BROADCAST_WIDGET_UPDATE = "com.wylder.shuttlewidget.HAS_NEW_SHIT";
+    public static final String BROADCAST_SEARCH_RESULT = "com.wylder.shuttlewidget.result";
 
     // constants for the network requests
     private static final int TIMEOUT_MILLIS = 10000;
@@ -36,10 +38,13 @@ public class StopSchedulerService extends IntentService {
     public static final String BG_COLOR = "background color";
     public static final String CREATE_STOP_FLAG = "nostop";
     public static final String UPDATE_TYPE = "update type";
+    public static final String ROUTE_ID = "routeId";
+    public static final String STOP_ID = "stopid";
 
     // codes for type of request sent to this Service
     public static final int UPDATE_STOP = 10;
     public static final int UPDATE_ARRIVAL = 20;
+    public static final int GET_ARRIVAL_TIME = 30;
 
     public StopSchedulerService(){
         this(SERVICE_NAME);
@@ -57,7 +62,21 @@ public class StopSchedulerService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         int type = intent.getIntExtra(UPDATE_TYPE, UPDATE_STOP);    // get the type of request
-        Intent responseIntent = new Intent(BROADCAST_UPDATE_ACTION);
+        if(type == GET_ARRIVAL_TIME){
+            Log.e("KevinRuntime", "message received");
+            // create a new response Intent to send back to the fragment
+            Intent responseIntent = new Intent(BROADCAST_SEARCH_RESULT);
+            // create a constraint that holds the route and stop
+            ScheduleConstraint artificialConstraint = new ScheduleConstraint(null, 0, 0,
+                    intent.getIntExtra(ROUTE_ID, 0), intent.getIntExtra(STOP_ID, 0)     );
+            // put the response time in the intent
+            responseIntent.putExtra(STOP_TIME, getStopTime(artificialConstraint));
+            // resend the intent
+            sendBroadcast(responseIntent);
+            // stop the function
+            return;
+        }
+        Intent responseIntent = new Intent(BROADCAST_WIDGET_UPDATE);
         ConstraintDatabase database = new ConstraintDatabase(this);
         ScheduleConstraint currentConstraint = database.getCurrentConstraint();
         if(currentConstraint == null){
