@@ -4,7 +4,6 @@
     android:minWidth="150dp"
     android:minHeight="40dp"
     android:updatePeriodMillis="900000"
-    android:previewImage="@drawable/ic_launcher"
     android:initialLayout="@layout/shuttle_widget"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen">

@@ -23,15 +23,15 @@ import java.util.ArrayList;
  * It sends an Intent to the StopSchedulerService containing a route and stop id requesting
  * the arrival time and displays it.
  */
-public class FragmentShuttleLookup extends Fragment implements View.OnClickListener {
+public class FragmentShuttleLookup extends Fragment {
 
+    // a receiver to handle the response from ShuttleWidgetProvider
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             resultView.setText(intent.getStringExtra(StopSchedulerService.STOP_TIME));
         }
     };
-
 
     // handles the spinner logic
     private ArrayAdapter<String> routesAdapter;
@@ -68,6 +68,7 @@ public class FragmentShuttleLookup extends Fragment implements View.OnClickListe
     };
 
     private Button updateButton;
+    private Button mapButton;
     private TextView resultView;
     private Spinner routeSpinner;
     private Spinner stopSpinner;
@@ -87,6 +88,7 @@ public class FragmentShuttleLookup extends Fragment implements View.OnClickListe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_shuttle_lookup, container, false);
         updateButton = (Button) view.findViewById(R.id.searchButton);
+        mapButton = (Button) view.findViewById(R.id.mapButton);
         resultView = (TextView) view.findViewById(R.id.resultTextView);
         routeSpinner = (Spinner) view.findViewById(R.id.routeSpinner);
         stopSpinner = (Spinner) view.findViewById(R.id.stopSpinner);
@@ -104,7 +106,18 @@ public class FragmentShuttleLookup extends Fragment implements View.OnClickListe
         routeSpinner.setAdapter(routesAdapter);
         stopSpinner.setAdapter(stopsAdapter);
         routeSpinner.setOnItemSelectedListener(onRouteSelectedListener);
-        updateButton.setOnClickListener(this);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lookupStop();
+            }
+        });
+        mapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewLiveMap();
+            }
+        });
 
         return view;
     }
@@ -123,13 +136,24 @@ public class FragmentShuttleLookup extends Fragment implements View.OnClickListe
         getActivity().unregisterReceiver(receiver);
     }
 
-    @Override
-    public void onClick(View view) {
+    /**
+     * A helper method to take the current state and use it to lookup the stop arrival
+     */
+    private void lookupStop() {
         Intent requestAction = new Intent(getActivity(), StopSchedulerService.class);
         requestAction.putExtra(StopSchedulerService.UPDATE_TYPE, StopSchedulerService.GET_ARRIVAL_TIME);
-        requestAction.putExtra(StopSchedulerService.STOP_ID, stopSpinner.getSelectedItemId());
-        requestAction.putExtra(StopSchedulerService.ROUTE_ID, routeSpinner.getSelectedItemId());
+        requestAction.putExtra(StopSchedulerService.STOP_ID, (int)stopSpinner.getSelectedItemId());
+        requestAction.putExtra(StopSchedulerService.ROUTE_ID, (int)routeSpinner.getSelectedItemId());
         getActivity().startService(requestAction);
+    }
+
+    /**
+     * a helper method to open an LiveMapActivity to show the live map
+     */
+    private void viewLiveMap() {
+        Intent lookAtMap = new Intent(getActivity(), LiveMapActivity.class);
+        lookAtMap.putExtra(LiveMapActivity.EXTRA_ROUTE_ID, (int)routeSpinner.getSelectedItemId());
+        startActivity(lookAtMap);
     }
 
     /**

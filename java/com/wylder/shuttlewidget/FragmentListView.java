@@ -27,6 +27,8 @@ public class FragmentListView extends ListFragment {
                 flagEmptyList = true;   // if empty, don't let the user delete things
                 // create a new array with one null element, signaling the ListAdapter to show help text
                 constraints = new ScheduleConstraint[]{null};
+            }else{
+                flagEmptyList = false;
             }
             ConstraintListAdapter adapter = new ConstraintListAdapter(getActivity(), constraints);
             setListAdapter(adapter);

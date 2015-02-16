@@ -26,6 +26,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
 /**
  * This is the main activity, launched from the app icon. It displays two views - a week overview
  * of ScheduleConstraints and a ListView with each constraint listed - inside a ViewPager
@@ -105,6 +107,13 @@ public class StopSchedulerActivity extends FragmentActivity{
             @Override
             public void onPageScrollStateChanged(int state) {}
         });
+        // check if Today is in the range of days of operation, and if not, put the pager on WeekView
+        Calendar calendar = Calendar.getInstance();
+        int todayOfTheWeek = calendar.get(Calendar.DAY_OF_WEEK) - 2;  // Sunday is day 1, and we need Monday to be index 0
+        if(todayOfTheWeek < 0 || todayOfTheWeek >= ShuttleConstants.DAYS_OF_THE_WEEK){
+            // weekend baby!
+            pager.setCurrentItem(1);
+        }
     }
 
 
