@@ -36,7 +36,7 @@ public class StopSchedulerService extends IntentService {
     public static final String STOP_TIME = "stop time";
     public static final String TEXT_COLOR = "text color";
     public static final String BG_COLOR = "background color";
-    public static final String CREATE_STOP_FLAG = "nostop";
+    public static final String LOOKUP_SHUTTLE_FLAG = "nostop";
     public static final String UPDATE_TYPE = "update type";
     public static final String ROUTE_ID = "routeId";
     public static final String STOP_ID = "stopid";
@@ -83,19 +83,20 @@ public class StopSchedulerService extends IntentService {
             // the database has no constraint at this time
             // check if we can add a constraint right now
             Calendar calendar = Calendar.getInstance();
-            if(     calendar.get(Calendar.DAY_OF_WEEK) - 2 != -1                        // if not Sunday,
+            if(     calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY                // if not Sunday,
+                 && calendar.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY              // and not Saturday
                  && calendar.get(Calendar.HOUR_OF_DAY) >= ShuttleConstants.HOUR_START    // after start hour,
                  && calendar.get(Calendar.HOUR_OF_DAY) <= ShuttleConstants.HOUR_END      // and before end hour
                 ){
                 responseIntent.putExtra(STOP_TIME, "No Stop");
-                responseIntent.putExtra(STOP_NAME, "Touch to add Stop");
-                responseIntent.putExtra(CREATE_STOP_FLAG, true);
+                responseIntent.putExtra(STOP_NAME, "Touch to Search Stop");
+                responseIntent.putExtra(LOOKUP_SHUTTLE_FLAG, true);
             }else{
                 responseIntent.putExtra(STOP_TIME, "Unavailable");
                 responseIntent.putExtra(STOP_NAME, "No Shuttles Running");
             }
-            responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
-            responseIntent.putExtra(BG_COLOR, ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
+            responseIntent.putExtra(TEXT_COLOR, ShuttleConstants.secondaryColors[ShuttleConstants.secondaryColors.length - 1]);
+            responseIntent.putExtra(BG_COLOR, ShuttleConstants.primaryColors[ShuttleConstants.primaryColors.length - 1]);
         }else if(type == UPDATE_STOP){
             // the widget asked for an update the current stop. don't worry about arrival time because
             // the user probably isn't there.

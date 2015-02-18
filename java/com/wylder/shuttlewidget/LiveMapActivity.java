@@ -37,21 +37,27 @@ import java.util.ArrayList;
 
 /**
  * Created by kevin on 2/15/15.
+ *
+ * This is an activity that shows a Map with the current shuttle position on it. The activity takes
+ * an int of ShuttleConstant's selected stop. It polls ucsdbus.com to get the current shuttle position.
  */
 public class LiveMapActivity extends Activity implements OnMapReadyCallback{
 
+    private static final int UPDATE_INTERVAL = 3;
     private static final int TIMEOUT_MILLIS = 5000;
     private static final int BUFFER_SIZE = 100;
-    public static final String EXTRA_ROUTE_ID = "ROUTEid";
+    public static final String EXTRA_ROUTE_ID = "ROUTEid";  // the selected stop in the intent
+
 
     private MapFragment mapView;
+    private GoogleMap drawingMap;
     private int routeSelectedIndex;
     private String lookupURL;
     private int pathColor;
     private int stopColor;
-    private GoogleMap drawingMap;
     private ArrayList<Marker> shuttles = new ArrayList<Marker>();
 
+    // variables to handle the update interval
     private boolean running = true;
     private Handler handler = new Handler();
     private Runnable runnable = new Runnable() {
@@ -59,7 +65,7 @@ public class LiveMapActivity extends Activity implements OnMapReadyCallback{
         public void run() {
             new GetShuttlePosition().execute();
             if (running){
-                handler.postDelayed(runnable, 10000);
+                handler.postDelayed(runnable, UPDATE_INTERVAL * 1000);
             }
         }
     };
@@ -70,8 +76,8 @@ public class LiveMapActivity extends Activity implements OnMapReadyCallback{
         // get the selected map to view
         routeSelectedIndex = getIntent().getIntExtra(EXTRA_ROUTE_ID, 0);
         // set map drawing element colors
-        pathColor = ShuttleConstants.widgetColors[routeSelectedIndex];
-        stopColor = ShuttleConstants.textColors[routeSelectedIndex];
+        pathColor = ShuttleConstants.primaryColors[routeSelectedIndex];
+        stopColor = ShuttleConstants.secondaryColors[routeSelectedIndex];
         // form the url
         lookupURL = "http://www.ucsdbus.com/Route/" + ShuttleConstants.onlineRouteIds[routeSelectedIndex] + "/Vehicles";
 
@@ -81,6 +87,10 @@ public class LiveMapActivity extends Activity implements OnMapReadyCallback{
         mapView.getMapAsync(this);
     }
 
+    /**
+     * called when a GoogleMap object is ready to use to draw on the map.
+     * @param googleMap the object that will draw on the MapFragment
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // create the BitmapDescriptor
@@ -116,28 +126,33 @@ public class LiveMapActivity extends Activity implements OnMapReadyCallback{
             stopMarkerOptions.icon(shuttleIcon);
             googleMap.addMarker(stopMarkerOptions);
         }
-        // start the update shuttle loop
+        // start the update shuttle interval
         handler.post(runnable);
     }
 
+    /**
+     * This class will get the shuttle's GPS coordinates and use them to update the UI
+     */
     class GetShuttlePosition extends AsyncTask<Void, Void, String>{
 
+        /**
+         * Get the shuttles location over the internet
+         * @return a JSON string of bus info
+         */
         @Override
         protected String doInBackground(Void... voids) {
             try{
+                // create a URL location to access using an internet connection
                 URL urlObject = new URL(lookupURL);
                 HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
                 connection.setReadTimeout(TIMEOUT_MILLIS * 2);
                 connection.setConnectTimeout(TIMEOUT_MILLIS);
                 connection.setRequestMethod("GET");
-                Log.e("AndroidRuntime", "ping");
                 connection.connect();
-                Log.e("AndroidRuntime", "pong");
                 // if the response isn't ok, throw an exception
                 int response = connection.getResponseCode();
-                Log.e("AndroidRuntime", "Response: " + response);
                 if(response != HttpURLConnection.HTTP_OK){
-                    //         throw new Exception("response not 200");
+                            throw new Exception("response not 200");
                 }
                 // get and read the InputStream into a StringBuilder using InputStreamReader
                 InputStream inputStream = connection.getInputStream();
@@ -165,13 +180,20 @@ public class LiveMapActivity extends Activity implements OnMapReadyCallback{
                 Log.e("AndroidRuntime", "uri parse error");
             } catch (IOException e) {
                 Log.e("AndroidRuntime", "io read error");
+            } catch (Exception e){
+                Log.e("AndroidRuntime", "response not 200");
             }
             return null;
         }
 
+        /**
+         * Use the info to update the map
+         * @param source the JSON string from the background method
+         */
         @Override
         protected void onPostExecute(String source){
             if(source == null){
+                // something bad happened, we quit.
                 return;
             }
             try {

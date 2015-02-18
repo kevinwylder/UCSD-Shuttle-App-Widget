@@ -35,11 +35,8 @@ import java.util.Calendar;
  */
 public class StopSchedulerActivity extends FragmentActivity{
 
+    // the request code for AddConstraintActivity.
     public static final int REQUEST_CODE = 12;
-    public static final int RESULT_CLOSE = 244;    // return this to close the app onResult
-
-    // action to open and directly ask to make new constraint
-    public static final String ACTION_CREATE_CONSTRAINT = "com.wylder.shuttlewidget.new constraint";
 
     private static final String[] tabNames = {
             "Search", "Week View", "List View"
@@ -50,11 +47,16 @@ public class StopSchedulerActivity extends FragmentActivity{
     private ActionBar actionBar;
     private ConstraintDatabase database;
 
+    /**
+     * The first method to be called in the application
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         pager = (ViewPager) findViewById(R.id.pagerValid);
+
         // setup the actionbar to have tabs
         actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -67,7 +69,7 @@ public class StopSchedulerActivity extends FragmentActivity{
                 public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
                     pager.setCurrentItem(position);     // move the pager to the selected tab
                 }
-
+                // do nothing for the rest of the actions
                 @Override
                 public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {}
 
@@ -76,18 +78,13 @@ public class StopSchedulerActivity extends FragmentActivity{
             });
             actionBar.addTab(tab);
         }
-        // if intent has flag to create a new constraint, start AddConstraintActivity
-        if(getIntent().getBooleanExtra(ACTION_CREATE_CONSTRAINT, false)){
-            Intent startActivity = new Intent(StopSchedulerActivity.this, AddConstraintActivity.class);
-            // add same flag to let the class know it should select today
-            startActivity.putExtra(ACTION_CREATE_CONSTRAINT, true);
-            startActivityForResult(startActivity, REQUEST_CODE);
-        }
+
         // create database and display help if first creation of database
         database = new ConstraintDatabase(this);
         if(database.newDatabaseFlag){
             displayHelp();
         }
+
         // create and setup views
         adapter = new MainViewAdapter(getSupportFragmentManager(), database);
         pager.setAdapter(adapter);
@@ -107,6 +104,7 @@ public class StopSchedulerActivity extends FragmentActivity{
             @Override
             public void onPageScrollStateChanged(int state) {}
         });
+
         // check if Today is in the range of days of operation, and if not, put the pager on WeekView
         Calendar calendar = Calendar.getInstance();
         int todayOfTheWeek = calendar.get(Calendar.DAY_OF_WEEK) - 2;  // Sunday is day 1, and we need Monday to be index 0
@@ -116,31 +114,15 @@ public class StopSchedulerActivity extends FragmentActivity{
         }
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.stop_scheduler, menu);
-        return true;
-    }
-
     /**
-     * a method to cleanup after the activity finishes. here we close the database
+     * This method responds to actionbar icon clicks (not tabs)
+     * @param item the clicked item
      */
     @Override
-    public void onDestroy(){
-        database.closeDatabase();
-        super.onDestroy();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.add_constraint) {
-            // when the user clicks "ADD CONSTRAINT" start the AddConstraintActivity
+            // when the user clicks the button to add a constraint, start AddConstraintActivity
             Intent startActivity = new Intent(StopSchedulerActivity.this, AddConstraintActivity.class);
             startActivityForResult(startActivity, REQUEST_CODE);
             return true;
@@ -153,7 +135,7 @@ public class StopSchedulerActivity extends FragmentActivity{
 
     /**
      * This method is called when the result from AddConstraintActivity is ready.
-     * If the Constraint isn't good, it will display an appropriate Toast explaining why
+     * If the Constraint isn't legal, it will display an appropriate Toast explaining why
      * @param requestCode to keep track of calls to startActivityForResult
      * @param resultCode an int representing the legality of the created ScheduleConstraint, or RESULT_CANCELLED
      * @param data the intent containing encoded ScheduleConstraint data
@@ -162,8 +144,6 @@ public class StopSchedulerActivity extends FragmentActivity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(resultCode == Activity.RESULT_CANCELED) {
             Toast.makeText(this, "Press button to add constraint", Toast.LENGTH_SHORT).show();
-        }else if(resultCode == RESULT_CLOSE){   // special case where the user opened the app from the widget and pressed actionbar up arrow
-            finish();
         }else if(resultCode == ScheduleConstraint.BAD_TIME_RANGE){
             Toast.makeText(this, "Constraint not created, bad time range", Toast.LENGTH_LONG).show();
         }else if(resultCode == ScheduleConstraint.SHUTTLE_NOT_RUNNING){
@@ -183,6 +163,7 @@ public class StopSchedulerActivity extends FragmentActivity{
             }
         }
     }
+
 
     /**
      * a method to show an overlay leading the user to add a constraint and the widget to the homescreen
@@ -254,5 +235,26 @@ public class StopSchedulerActivity extends FragmentActivity{
         });
         windowManager.addView(imageView, params);
 
+    }
+
+
+    /**
+     * This function is to inflate the options menu
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.stop_scheduler, menu);
+        return true;
+    }
+
+
+    /**
+     * a method to cleanup after the activity finishes. here we close the database
+     */
+    @Override
+    public void onDestroy(){
+        database.closeDatabase();
+        super.onDestroy();
     }
 }

@@ -1,5 +1,6 @@
 package com.wylder.shuttlewidget;
 
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentManager;
@@ -9,11 +10,8 @@ import android.view.ViewGroup;
  * Created by kevin on 2/6/15.
  *
  * An adapter for the ViewPager in StopSchedulerService
- * This adapter will specifically display the WeekView and a ListView (using ConstraintListAdapter).
- * It holds it's own database, so the only method necessary is updateConstraintsFromDatabase() which
- * updates the data shown in the WeekView and ListView
- * Extending PagerAdapter is for simplicity, there is no need to extend FragmentPagerAdapter because
- * each page is only a view.
+ * This adapter will show 3 views, a Lookup view, week View, and list view, each with their own
+ * fragment. A copy of the constraint database is necessary to register listeners to update the UI
  */
 public class MainViewAdapter extends FragmentPagerAdapter {
 
@@ -22,13 +20,26 @@ public class MainViewAdapter extends FragmentPagerAdapter {
     private static final int LISTVIEW_POSITION = 2;
     private static final int NUMBER_OF_PAGES = 3;
 
+    // a reference to StopSchedulerActivity's database
     private ConstraintDatabase database;
 
+    /**
+     * Constructor of the adapter, with a pointer to StopSchedulerActivity's ConstraintDatabase
+     * @param manager   fragment manager of the FragmentActivity
+     * @param database  a reference to the database
+     */
     public MainViewAdapter(FragmentManager manager, ConstraintDatabase database) {
         super(manager);
         this.database = database;
     }
 
+    /**
+     * this method is where each fragment is instantiated.
+     * Many fragments need listeners to be added to the ConstraintDatabase so that it has a list
+     * of constraints; they need to be setup here.
+     * @param position
+     * @return
+     */
     @Override
     public Fragment getItem(int position) {
         switch(position){
@@ -48,6 +59,18 @@ public class MainViewAdapter extends FragmentPagerAdapter {
         }
     }
 
+    /**
+     * This method is run when the activity is resumed. Update the UI
+     */
+    @Override
+    public void restoreState(Parcelable parcelable, ClassLoader loader){
+        super.restoreState(parcelable, loader);
+        database.runUpdateListeners();
+    }
+
+    /**
+     * This method is run when the ViewPager is created. Update the UI
+     */
     @Override
     public void finishUpdate(ViewGroup container){
         super.finishUpdate(container);

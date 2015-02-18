@@ -8,11 +8,15 @@ import android.view.ViewGroup;
 
 /**
  * Created by kevin on 2/13/15.
+ *
+ * A fragment that displays the WeekView
  */
 public class FragmentWeekView extends Fragment {
 
     private WeekView mainView;
 
+    // this will be added to the ConstraintDatabase's ArrayList<OnDatabaseUpdatedListener> and
+    // will update the UI with the retrieved ScheduleConstraints
     public ConstraintDatabase.OnDatabaseUpdatedListener updateListener = new ConstraintDatabase.OnDatabaseUpdatedListener() {
         @Override
         public void onUpdate(ScheduleConstraint[] newConstraints) {
@@ -20,23 +24,13 @@ public class FragmentWeekView extends Fragment {
         }
     };
 
-    @Override
-    public void onCreate(Bundle sis){
-        super.onCreate(sis);
-    }
-
+    /**
+     * This method will return the WeekView to be in the Fragment
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle sis){
         mainView = new WeekView(getActivity());
         return mainView;
-    }
-
-    public void updateConstraints(ScheduleConstraint[] constraints){
-        try {
-            mainView.displayConstraints(constraints);
-        }catch(NullPointerException exception){
-            // mainView not created yet
-        }
     }
 
     /**

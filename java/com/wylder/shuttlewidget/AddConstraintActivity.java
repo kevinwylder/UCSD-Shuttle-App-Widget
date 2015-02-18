@@ -17,7 +17,6 @@ import android.widget.TimePicker;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * Created by kevin on 2/2/15.
@@ -35,8 +34,6 @@ public class AddConstraintActivity extends Activity {
     private DaySelector daysOfTheWeek;
     private Button submitButton;
 
-    private boolean fromWidget = false;     // a flag for if the intent came from the widget
-
     private ArrayAdapter<String> routesAdapter;
     private ArrayAdapter<String> stopsAdapter;
     private ArrayList<String> stopsAdapterDataBackend;
@@ -51,8 +48,8 @@ public class AddConstraintActivity extends Activity {
                 }
                 stopsAdapter.notifyDataSetChanged();
             }
-            adapterView.setBackgroundColor(ShuttleConstants.widgetColors[selected]);
-            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.textColors[selected]);
+            adapterView.setBackgroundColor(ShuttleConstants.primaryColors[selected]);
+            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.secondaryColors[selected]);
         }
 
         @Override
@@ -62,8 +59,8 @@ public class AddConstraintActivity extends Activity {
                 stopsAdapter.notifyDataSetChanged();
             }
             // the last element in the ShuttleConstants color lists are the default colors
-            adapterView.setBackgroundColor(ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
-            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
+            adapterView.setBackgroundColor(ShuttleConstants.primaryColors[ShuttleConstants.primaryColors.length - 1]);
+            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.secondaryColors[ShuttleConstants.secondaryColors.length - 1]);
         }
     };
 
@@ -114,18 +111,6 @@ public class AddConstraintActivity extends Activity {
             }
         });
 
-        // test if the user wants to add a constraint from the widget
-        if(getIntent().getBooleanExtra(StopSchedulerActivity.ACTION_CREATE_CONSTRAINT, false)){
-            fromWidget = true;
-            // if the user is coming from the widget, set today to true in DaySelector
-            boolean[] days = new boolean[ShuttleConstants.DAYS_OF_THE_WEEK];
-            int today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) - 2;
-            if(today != -1){        // avoid crashes on Sunday
-                days[today] = true;
-                daysOfTheWeek.setSelectedDays(days);
-            }
-        }
-
         // put name and back button in action bar
         ActionBar actionBar = getActionBar();
         actionBar.setTitle("Add to Schedule");
@@ -142,10 +127,6 @@ public class AddConstraintActivity extends Activity {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                if(fromWidget) {
-                    // request to close the main activity too
-                    setResult(StopSchedulerActivity.RESULT_CLOSE);
-                }
                 finish();
                 return true;
         }

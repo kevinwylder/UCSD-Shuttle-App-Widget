@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -25,11 +26,15 @@ import java.util.ArrayList;
  */
 public class FragmentShuttleLookup extends Fragment {
 
+    private static final int STATE_EMPTY = 0;
+    private static final int STATE_LOOKUP = 1;
+    private static final int STATE_RESULT = 2;
+
     // a receiver to handle the response from ShuttleWidgetProvider
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            resultView.setText(intent.getStringExtra(StopSchedulerService.STOP_TIME));
+            setResultViewState(STATE_RESULT, intent.getStringExtra(StopSchedulerService.STOP_TIME));
         }
     };
 
@@ -46,10 +51,11 @@ public class FragmentShuttleLookup extends Fragment {
                     stopsAdapterDataBackend.add(ShuttleConstants.stopNames[selected][i]);
                 }
                 stopsAdapter.notifyDataSetChanged();
+                setResultViewState(STATE_EMPTY, null);
             }
-            adapterView.setBackgroundColor(ShuttleConstants.widgetColors[selected]);
+            adapterView.setBackgroundColor(ShuttleConstants.primaryColors[selected]);
             try {
-                ((TextView) adapterView.getChildAt(0)).setTextColor(ShuttleConstants.textColors[selected]);
+                ((TextView) adapterView.getChildAt(0)).setTextColor(ShuttleConstants.secondaryColors[selected]);
             }catch (NullPointerException exception){
                 // view not created yet?
             }
@@ -62,14 +68,26 @@ public class FragmentShuttleLookup extends Fragment {
                 stopsAdapter.notifyDataSetChanged();
             }
             // the last element in the ShuttleConstants color lists are the default colors
-            adapterView.setBackgroundColor(ShuttleConstants.widgetColors[ShuttleConstants.widgetColors.length - 1]);
-            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.textColors[ShuttleConstants.textColors.length - 1]);
+            adapterView.setBackgroundColor(ShuttleConstants.primaryColors[ShuttleConstants.primaryColors.length - 1]);
+            ((TextView)adapterView.getChildAt(0)).setTextColor(ShuttleConstants.secondaryColors[ShuttleConstants.secondaryColors.length - 1]);
         }
     };
 
-    private Button updateButton;
+    private AdapterView.OnItemSelectedListener onStopSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            lookupStop();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+
+        }
+    };
+
     private Button mapButton;
     private TextView resultView;
+    private ProgressBar loadingSpinner;
     private Spinner routeSpinner;
     private Spinner stopSpinner;
 
@@ -87,11 +105,11 @@ public class FragmentShuttleLookup extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_shuttle_lookup, container, false);
-        updateButton = (Button) view.findViewById(R.id.searchButton);
         mapButton = (Button) view.findViewById(R.id.mapButton);
         resultView = (TextView) view.findViewById(R.id.resultTextView);
         routeSpinner = (Spinner) view.findViewById(R.id.routeSpinner);
         stopSpinner = (Spinner) view.findViewById(R.id.stopSpinner);
+        loadingSpinner = (ProgressBar) view.findViewById(R.id.loadingSpinner);
 
         // setup the adapters and their data
         stopsAdapterDataBackend = new ArrayList<String>();
@@ -106,7 +124,9 @@ public class FragmentShuttleLookup extends Fragment {
         routeSpinner.setAdapter(routesAdapter);
         stopSpinner.setAdapter(stopsAdapter);
         routeSpinner.setOnItemSelectedListener(onRouteSelectedListener);
-        updateButton.setOnClickListener(new View.OnClickListener() {
+        stopSpinner.setOnItemSelectedListener(onStopSelectedListener);
+
+        resultView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 lookupStop();
@@ -145,6 +165,7 @@ public class FragmentShuttleLookup extends Fragment {
         requestAction.putExtra(StopSchedulerService.STOP_ID, (int)stopSpinner.getSelectedItemId());
         requestAction.putExtra(StopSchedulerService.ROUTE_ID, (int)routeSpinner.getSelectedItemId());
         getActivity().startService(requestAction);
+        setResultViewState(STATE_LOOKUP, null);
     }
 
     /**
@@ -152,8 +173,24 @@ public class FragmentShuttleLookup extends Fragment {
      */
     private void viewLiveMap() {
         Intent lookAtMap = new Intent(getActivity(), LiveMapActivity.class);
-        lookAtMap.putExtra(LiveMapActivity.EXTRA_ROUTE_ID, (int)routeSpinner.getSelectedItemId());
+        lookAtMap.putExtra(LiveMapActivity.EXTRA_ROUTE_ID, (int) routeSpinner.getSelectedItemId());
         startActivity(lookAtMap);
+    }
+
+    private void setResultViewState(int state, String text){
+        switch (state){
+            case STATE_EMPTY:
+                loadingSpinner.setVisibility(View.INVISIBLE);
+                resultView.setText("");
+                break;
+            case STATE_LOOKUP:
+                loadingSpinner.setVisibility(View.VISIBLE);
+                resultView.setText("");
+                break;
+            case STATE_RESULT:
+                loadingSpinner.setVisibility(View.INVISIBLE);
+                resultView.setText(text);
+        }
     }
 
     /**

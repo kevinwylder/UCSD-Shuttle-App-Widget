@@ -131,11 +131,11 @@ public class ScheduleConstraint {
     }
 
     public int getTextColor(){
-        return ShuttleConstants.textColors[routeId];
+        return ShuttleConstants.secondaryColors[routeId];
     }
 
     public int getBackgroundColor(){
-        return ShuttleConstants.widgetColors[routeId];
+        return ShuttleConstants.primaryColors[routeId];
     }
 
     /**
@@ -149,7 +149,7 @@ public class ScheduleConstraint {
      * returns an integer color that corresponds to the route
      */
     public int getWidgetColor(){
-        return ShuttleConstants.widgetColors[routeId];
+        return ShuttleConstants.primaryColors[routeId];
     }
 
     /**

@@ -37,9 +37,8 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
         // find out whather to request update, or open app asking to make a new constraint
         PendingIntent onClickIntent;
         if(hasNoStopNow){
-            // create an intent to open the app and make a new constraint
+            // create an intent to open the app
             Intent makeConstraint = new Intent(context, StopSchedulerActivity.class);
-            makeConstraint.putExtra(StopSchedulerActivity.ACTION_CREATE_CONSTRAINT, true);
             onClickIntent = PendingIntent.getActivity(context, 0, makeConstraint, PendingIntent.FLAG_ONE_SHOT);
         }else{
             // create intent to update service, then turn it into PendingIntent
@@ -80,7 +79,7 @@ public class ShuttleWidgetProvider extends AppWidgetProvider {
             stopTime = intent.getStringExtra(StopSchedulerService.STOP_TIME);
             widgetColor = intent.getIntExtra(StopSchedulerService.BG_COLOR, Color.WHITE);
             textColor = intent.getIntExtra(StopSchedulerService.TEXT_COLOR, Color.BLACK);
-            hasNoStopNow = intent.getBooleanExtra(StopSchedulerService.CREATE_STOP_FLAG, false);
+            hasNoStopNow = intent.getBooleanExtra(StopSchedulerService.LOOKUP_SHUTTLE_FLAG, false);
 
             AppWidgetManager gm = AppWidgetManager.getInstance(context);
             int[] ids = gm.getAppWidgetIds(new ComponentName(context, ShuttleWidgetProvider.class));

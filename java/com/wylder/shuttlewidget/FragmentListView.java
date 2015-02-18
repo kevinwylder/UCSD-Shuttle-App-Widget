@@ -12,6 +12,10 @@ import android.widget.ListView;
 
 /**
  * Created by kevin on 2/13/15.
+ *
+ * A fragment that displays a ListView containing each ScheduleConstraint in the ConstraintDatabase
+ * unlike other Fragments in the FragmentPagerAdapter, this one needs a copy of the ConstraintDatabase
+ * so it can delete elements.
  */
 public class FragmentListView extends ListFragment {
 
@@ -19,6 +23,10 @@ public class FragmentListView extends ListFragment {
     private ScheduleConstraint[] constraints;
     private boolean flagEmptyList = false;
 
+    /**
+     * this will be added to the ConstraintDatabase's OnDatabaseUpdateListener ArrayList, and will be
+     * called to show the data in the database
+     */
     public ConstraintDatabase.OnDatabaseUpdatedListener updateListener = new ConstraintDatabase.OnDatabaseUpdatedListener() {
         @Override
         public void onUpdate(ScheduleConstraint[] newConstraints) {
@@ -35,12 +43,18 @@ public class FragmentListView extends ListFragment {
         }
     };
 
+    /**
+     * This method is called when the user clicks an element in the list
+     * @param position the position in the list that the user clicked. It corresponds to a ScheduleConstraint
+     *                 in the ScheduleConstraint[], constraints. We use this information and the reference
+     *                 to the ConstraintDatabase to delete the selected element
+     */
     @Override
     public void onListItemClick(ListView view, View selectedView, int position, long id){
         if(flagEmptyList){
             return;         // don't show a dialog if the list is empty
         }
-        final int pos = position;
+        final int pos = position;       // make final so the onClickListener can refer to it
         AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
         dialog.setTitle("Delete");
         dialog.setMessage("Delete this Constraint from the schedule?");
@@ -55,11 +69,10 @@ public class FragmentListView extends ListFragment {
         dialog.create().show();
     }
 
-    @Override
-    public void onCreate(Bundle sis){
-        super.onCreate(sis);
-    }
-
+    /**
+     * A method that must be called before items can be successfully be deleted from the database
+     * @param database
+     */
     public void giveDatabaseCopy(ConstraintDatabase database){
         this.database = database;
     }

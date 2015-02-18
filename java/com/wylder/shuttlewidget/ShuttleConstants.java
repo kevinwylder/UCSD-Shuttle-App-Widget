@@ -11,7 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class ShuttleConstants {
 
-    // shuttles are Monday - Saturday, 7am - 11pm
+    // shuttles are Monday - Friday, 7am - 11pm
     public static final int DAYS_OF_THE_WEEK = 5;
     public static final int HOUR_START = 7;
     public static final int HOUR_END = 23;
@@ -23,7 +23,8 @@ public class ShuttleConstants {
             "SIO Loop"
     };
 
-    public static final int[] widgetColors = new int[]{
+    // primary colors for each route
+    public static final int[] primaryColors = new int[]{
             Color.RED,
             Color.BLUE,
             Color.rgb(255, 235, 105),        // light orange
@@ -32,7 +33,8 @@ public class ShuttleConstants {
             Color.WHITE     // included as a default color
     };
 
-    public static final int[] textColors = new int[]{
+    // secondary colors for each route
+    public static final int[] secondaryColors = new int[]{
             Color.WHITE,
             Color.WHITE,
             Color.rgb(0, 20, 150),          // dark blue
@@ -41,6 +43,7 @@ public class ShuttleConstants {
             Color.BLACK     // included as a default color
     };
 
+    // the stop names for each route
     public static final String[][] stopNames = {
             {
                     "Torrey Pines",
@@ -106,10 +109,12 @@ public class ShuttleConstants {
             }
     };
 
+    // id numbers for each route used online at ucsdbus.com
     public static final int[] onlineRouteIds = {
             1113, 1114, 1098, 2399
     };
 
+    // id numbers for each stop used online at ucsdbus.com
     public static final int[][] onlineStopIds = {
             {
                     93814,  493852, 141062,
@@ -141,7 +146,7 @@ public class ShuttleConstants {
             }
     };
 
-    // an array of each stop in a route for each route
+    // an array of each stop's Coordinates in every route
     public static final LatLng[][] routeStopCoordinates = new LatLng[][]{
             new LatLng[]{
                     new LatLng(32.8899348060715, -117.24318087101),
@@ -207,7 +212,7 @@ public class ShuttleConstants {
             }
     };
 
-    // an array of each point in the path for each route
+    // an array of each point in the shuttle's path for each route
     public static final LatLng[][] routePathCoordinates = new LatLng[][]{
             new LatLng[]{
                     new LatLng(32.8899348060715, -117.24318087101),
